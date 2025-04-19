@@ -6,6 +6,7 @@ const readline = require('readline');
 const config = require('../Datos/config');
 const path = require('path');
 const Encadenador = require('../Encadenador/Encadenador');
+const Usuario = require('../modelo/usuario');
 class ConexionBD {
     /**
      * Se conecta mediante root al servidor para crear los objetos de la BD
@@ -24,6 +25,9 @@ class ConexionBD {
             this.conectar("root", config.init.rootPass, true, callback);
         }).then((callback)=>{
             console.log("Preparando cuenta de administrador...")
+            let admin = new Usuario(config.init.adminUser, config.init.adminPass);
+            admin.Es_Admin = true;
+            
             this.ejecutar(`CREATE USER IF NOT EXISTS ${user} IDENTIFIED WITH mysql_native_password BY ${pass}`, callback);
         }).then((callback)=>{
             this.ejecutar(`ALTER USER ${user} IDENTIFIED WITH mysql_native_password BY ${pass}`, callback);
@@ -112,6 +116,9 @@ class ConexionBD {
             rs = result
         })
         
+    }
+    ejecutarRes(consulta, callback=(err, result, fields)=>{}){
+        this.conexion.query(consulta, callback);
     }
 }
 const conexionBD = new ConexionBD();

@@ -4,12 +4,15 @@ const Modelador = require("./modelo/Modelador")
 const Usuario = require("./modelo/usuario");
 const Encadenador = require("./Encadenador/Encadenador");
 
+const Inicializador = require("./ConexionBD/Inicializador");
+
 //const http = require('http');
 const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
 const path = require('path');
 const conexionBD = require("./ConexionBD/ConexionBD");
+const Protocol = require("./protocol/protocol");
 const port = 8080;
 
 const front = path.join(__dirname, "Proyecto")
@@ -37,11 +40,24 @@ app.post("/pages/", (req, res)=>{
     conexionBD.conectarRes(user, pass, false, (err)=>{
         if(err){
             console.log(err.code);
-            res.send("1");
+            let datos = Protocol.paqueteLogin(null, 1);
+            console.log(datos);
+            res.send(datos);
         }else{
-            res.send("0");
-            console.log("conexion exitosa");
-            //res.redirect("/pages/panelControl.html");
+            ConexionBD.ejecutar("USE PhotoCalendar");
+            
+            //fuaa chaval hay que mandarle los permisos al usuario AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+            DAO.consultar("usuario", null, ['Nombre', 'Pass'], [user, pass], (err, ins)=>{
+                if(err){
+                    console.log("valio pilin", err);
+                }else{
+                    console.log(ins[0]);
+                    let datos = Protocol.paqueteLogin(ins[0], 0);
+                    console.log(datos);
+                    res.send(datos);
+                    console.log("conexion exitosa");
+                }
+            });
         }
         
     })
@@ -50,7 +66,9 @@ app.post("/pages/", (req, res)=>{
 const configura = new Encadenador();
 
 configura.then((callback)=>{
-    ConexionBD.iniciar(callback);
+    //ConexionBD.iniciar(callback);
+    Inicializador.iniciar(callback);
+
 }).then((callback)=>{
     ConexionBD.conectar("admin", "admin", true, callback);
 }).then((callback)=>{

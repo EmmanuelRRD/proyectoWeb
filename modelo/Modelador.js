@@ -1,5 +1,4 @@
 const Modelo = require('../modelo/Modelo');
-const Usuario = require("../modelo/usuario");
 /**
  * Clase para manejo de modelos
  */
@@ -7,8 +6,7 @@ class Modelador {
     /**
      * @type {Map<string, Modelo>}
      */
-    static modelos = new Map()
-    .set(Usuario.name, Usuario);
+    static modelos = new Map();
     /**
      * 
      * @param {typeof Modelo} modelo 
@@ -67,6 +65,12 @@ class Modelador {
      */
     static getNombre(nombre){
         return this.modelos.get(nombre);
+    }
+    static getCampos(modelo){
+        return Object.getOwnPropertyNames(modelo);
+    }
+    static getCamposNombre(nombre){
+        return Object.getOwnPropertyNames(new this.getNombre(nombre));
     }
 }
 

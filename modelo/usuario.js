@@ -1,4 +1,5 @@
 const Modelo = require('../modelo/Modelo');
+const Modelador = require('./Modelador');
 
 class Usuario extends Modelo{
     constructor(nombre, contrasenia){
@@ -27,5 +28,11 @@ class Usuario extends Modelo{
     static foraneas(){
         return [null, null, null, null, null];
     }
+    getDatos(){
+        return[this.Nombre, "pass", this.Lectura, this.Escritura, this.Es_Admin]
+    }
 }
+//registrar el modelo en el manejador de modelos
+console.log(Modelador);
+Modelador.modelos.set(Usuario.name.toLowerCase(), Usuario);
 module.exports = Usuario;

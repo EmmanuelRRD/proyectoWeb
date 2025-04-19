@@ -1,4 +1,4 @@
-
+localStorage.clear();
 document.getElementById("loginForm").addEventListener("submit", function(event) {
     event.preventDefault();
 
@@ -16,13 +16,18 @@ document.getElementById("loginForm").addEventListener("submit", function(event) 
     let str = JSON.stringify(obj);
 
     const xhttp = new XMLHttpRequest();
+
     //sacar la respuesta del request
     xhttp.onreadystatechange = (ev) =>{
       console.log(xhttp.readyState);
       if(xhttp.readyState == 4){
           if(xhttp.status == 200){
             
-            if(xhttp.response=="0"){
+            //paquete con los datos de usuario, todo y permisos
+            let data = Protocol.getLoginDatos(xhttp.response);
+
+            if(data[1] == Protocol.LOGIN_SUCCESS){
+              localStorage.setItem("user", JSON.stringify(data));
               window.location.href = "panelControl.html"
             }else{
               alert("Usuario o contraseña incorrectos, vuelva a intentar");

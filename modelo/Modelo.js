@@ -17,7 +17,7 @@ class Modelo {
         for(const fld in this){
             let p = this[fld];
             if(p == null) o.push("NULL");
-            else if(p instanceof String) o.push("'"+p+"'");
+            else if(typeof p == "string") o.push("'"+p+"'");
             else o.push(p);
         }
         return o;
