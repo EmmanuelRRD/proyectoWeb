@@ -1,12 +1,20 @@
-const Modelo = require('../modelo/Modelo');
+import { Modelo } from "./Modelo.mjs";
 /**
  * Clase para manejo de modelos
  */
-class Modelador {
+export class Modelador {
     /**
      * @type {Map<string, Modelo>}
      */
     static modelos = new Map();
+    /**
+     * 
+     * @param {typeof Modelo} clase 
+     */
+    static registrarModelo(clase){
+        this.modelos.set(clase.name, clase);
+        this.modelos.set(clase.name.toLowerCase(), clase);
+    }
     /**
      * 
      * @param {typeof Modelo} modelo 
@@ -72,6 +80,7 @@ class Modelador {
     static getCamposNombre(nombre){
         return Object.getOwnPropertyNames(new this.getNombre(nombre));
     }
+    static instanciar(nombre, args){
+        return new (this.getNombre(nombre))(...args);
+    }
 }
-
-module.exports = Modelador;

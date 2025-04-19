@@ -1,7 +1,7 @@
-const Modelo = require('../modelo/Modelo');
-const Modelador = require('./Modelador');
+import { Modelo } from './Modelo.mjs';
+import { Modelador } from './Modelador.mjs';
 
-class Usuario extends Modelo{
+export class Usuario extends Modelo{
     constructor(nombre, contrasenia){
         super();
         this.Nombre = nombre;
@@ -33,6 +33,4 @@ class Usuario extends Modelo{
     }
 }
 //registrar el modelo en el manejador de modelos
-console.log(Modelador);
-Modelador.modelos.set(Usuario.name.toLowerCase(), Usuario);
-module.exports = Usuario;
+Modelador.registrarModelo(Usuario);

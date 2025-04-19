@@ -3,9 +3,8 @@ const readline = require("readline");
 const DAO = require("../controlador/DAO");
 const config = require("../Datos/config");
 const Encadenador = require("../Encadenador/Encadenador");
-const Usuario = require("../modelo/usuario");
+const { Usuario } = require("../Proyecto/modelo/usuario.mjs");
 const conexionBD = require("./ConexionBD");
-
 class Inicializador {
     constructor(){}
     static iniciar(callback){

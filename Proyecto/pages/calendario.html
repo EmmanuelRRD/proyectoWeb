@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <script src="../Assets/js/protocol.mjs" type="module"></script>
+    <script type="module">
+        import { Protocol } from "../Assets/js/protocol.mjs";
+        if(Protocol.getUserDatos() == null) {
+            Protocol.enviarPagina("index");
+        }
+    </script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Calendario</title>
@@ -12,7 +19,10 @@
     <h2 id="monthYear"></h2>
     <div class="days" id="daysContainer"></div>
   </div>
-
-  <script src="/Assets/js/calendario.js"></script>
+  <script type="module" src="../modelo/Modelo.mjs"></script>
+  <script type="module" src="../modelo/Modelador.mjs"></script>
+  <script type="module" src="../modelo/usuario.mjs"></script>
+  <script type="module" src="../modelo/Evento.mjs"></script>
+  <script src="/Assets/js/calendario.js" type="module"></script>
 </body>
 </html>

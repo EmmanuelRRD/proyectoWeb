@@ -6,7 +6,7 @@ const readline = require('readline');
 const config = require('../Datos/config');
 const path = require('path');
 const Encadenador = require('../Encadenador/Encadenador');
-const Usuario = require('../modelo/usuario');
+const Usuario = require('../Proyecto/modelo/usuario.mjs');
 class ConexionBD {
     /**
      * Se conecta mediante root al servidor para crear los objetos de la BD
@@ -101,8 +101,8 @@ class ConexionBD {
         }
         this.conexion.connect(callback)
     }
-    desconectar(){
-        if(this.conexion.state == "connected") this.conexion.end();
+    desconectar(callback=(err)=>{}){
+        this.conexion.end(callback);
     }
     ejecutar(consulta, callback=()=>{}){
         let rs = null

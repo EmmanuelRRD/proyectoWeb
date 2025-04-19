@@ -1,6 +1,6 @@
-const Modelo = require("../modelo/Modelo");
-const Modelador = require("../modelo/Modelador");
-const Usuario = require("../modelo/usuario");
+const { Modelo } = require("../Proyecto/modelo/Modelo.mjs");
+const { Modelador } = require("../Proyecto/modelo/Modelador.mjs");
+const { Usuario } = require("../Proyecto/modelo/usuario.mjs");
 const Encadenador = require("../Encadenador/Encadenador");
 
 class DAO {
@@ -121,7 +121,7 @@ class DAO {
             this.agregarRes(modelo, (err, result, fields)=>{//agregalo a los usuarios de la BD pero con un procedimiento custom
                 if(err){
                     //llamar cositas para mostrar en interfaz, reconocimiento de codigos de error y eso
-                    console.warn("Error al agregar el administrador: ", err.errno, err.sqlMessage);
+                    console.warn("Error al agregar el usuario: ", err.errno, err.sqlMessage);
                 };
                 callback();
             }); 

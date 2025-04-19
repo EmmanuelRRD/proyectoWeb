@@ -1,4 +1,4 @@
-class Modelo {
+export class Modelo {
     static tiposSQL(){};
     static tipos(){};
     static longitudes(){};
@@ -23,4 +23,3 @@ class Modelo {
         return o;
     };
 }
-module.exports = Modelo;

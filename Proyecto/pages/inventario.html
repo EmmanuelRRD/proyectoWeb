@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script src="../Assets/js/protocol.mjs" type="module"></script>
+    <script type="module">
+        import { Protocol } from "../Assets/js/protocol.mjs";
+        if(Protocol.getUserDatos() == null) {
+            Protocol.enviarPagina("index");
+        }
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inventario</title>
