@@ -117,6 +117,11 @@ class ConexionBD {
         })
         
     }
+    /**
+     * 
+     * @param {string} consulta 
+     * @param {mysql.queryCallback} callback 
+     */
     ejecutarRes(consulta, callback=(err, result, fields)=>{}){
         this.conexion.query(consulta, callback);
     }

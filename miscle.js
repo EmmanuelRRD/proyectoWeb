@@ -19,20 +19,94 @@ import { Modelador } from "./Proyecto/modelo/Modelador.mjs";
 const app = express();
 const front = path.join(path.resolve("Proyecto"));
 console.log(front)
+/**
+ * @type {Usuario}
+ */
 let usuario = null;
+
+function verificarPermiso(permiso){
+    return permiso || usuario.Es_Admin;
+}
+function handlePacket(packet, res){
+    const data = packet.data;
+    const object = packet.object;
+    let errno = Protocol.QUERY_SUCCESS;
+    //que tipo de paquete es
+    switch(packet.header){
+
+        case Protocol.QUERY:
+
+            console.log("QUERY RECIBIDO: ", data);
+
+            if(!verificarPermiso(usuario.Lectura)){
+                console.log("lectura bloqueada a ", usuario);
+                res.send(Protocol.paqueteQuery(Protocol.QUERY_BLOCK, tablaNombre, null));
+                return;
+            }
+            //el usuario logeado si puede selectear
+            ConexionBD.ejecutarRes(data, (err, result, fields)=>{
+                console.log(result);
+                if(err){
+                    console.log("error en la consulta: ", err)
+                    errno = err.errno;
+                }
+                res.send(Protocol.paqueteQuery(errno, object, result));
+            })     
+            break;
+
+        case Protocol.INSERT:
+            console.log("INSERT RECIBIDO: ", data);
+
+            if(!verificarPermiso(usuario.Escritura)){
+                console.log("escritura bloqueada a ", usuario);
+                res.send(Protocol.paqueteInsert(Protocol.QUERY_BLOCK, tablaNombre, null));
+                return;
+            }
+            //el usuario logeado si puede insertar
+            ConexionBD.ejecutarRes(data, (err, result, fields)=>{
+                console.log(result);
+                if(err){
+                    console.log("error en la insercion: ", err)
+                    errno = err.errno;
+                }
+                res.send(Protocol.paqueteInsert(errno, object, result));
+            })
+            break;
+
+        case Protocol.QUERY_STACK: //repite el procesado de paquetes por cada instruccion del stack
+            console.log("Multiples instrucciones: ", data);
+            data.forEach(query=>{
+                handlePacket(query, res);
+            })
+            break;
+    } //varias instrucciones, costea mas usar transacciones
+}
+function handleRequest(req, res){
+    console.log("sasca: ", req.body);
+    if(usuario == null){
+        res.send(Protocol.paqueteLogback());
+        return;
+    }
+    try{
+        const packet = Protocol.parse(req.body);
+        handlePacket(packet, res);
+    }catch(e){
+        console.error("Paquete malformado: ", req.body)
+    }
+    
+}
 
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json());
 app.use(express.static(front));
 app.use("/modelo", express.static(path.resolve("Proyecto/modelo")));
-
+app.use("/controlador", express.static(path.resolve("Proyecto/controlador")))
 //si ya esta logeado mandalo al control, si no entonces al login
 app.get("/", (req, res)=>{
-    console.log("a gion")
     res.redirect("/pages/index.html");
 })
 app.listen(8080, ()=>{
-    console.log("SI")
+    console.log("sv prendido like");
 })
 
 app.post("/pages/index.html", (req, res)=>{
@@ -95,53 +169,9 @@ app.post("/pages/panelControl.html", (req, res)=>{
         console.log("request desconocido: ", data);
     }
 })
-
-//lo sabroso
+//lo sabroso del protocolo
 app.post("/pages/calendario.html", (req, res)=>{
-    if(usuario == null){
-        res.send(Protocol.paqueteLogback());
-        return;
-    }
-    const header = req.body.data[0];
-    switch(header){
-        case Protocol.QUERY:
-
-            if(!usuario.Lectura && !usuario.Es_Admin){
-                console.log("lectura bloqueada a ", usuario);
-                res.send(Protocol.paqueteQuery(Protocol.QUERY_BLOCK, tablaNombre, null));
-                return;
-            }
-            const { tablaNombre, seleccionNombres, filtroNombres, filtroValores } = req.body;
-            console.log("CONSULTA A ", tablaNombre, seleccionNombres, filtroNombres, filtroValores);
-            DAO.consultar(tablaNombre, seleccionNombres, filtroNombres, filtroValores, (err, result)=>{
-                console.log(result);
-                if(err) res.send(Protocol.paqueteQuery(Protocol.QUERY_FAILURE, tablaNombre, null));
-                else res.send(Protocol.paqueteQuery(Protocol.QUERY_SUCCESS, tablaNombre, result.length));
-            })
-            break;
-        case Protocol.INSERT:
-            
-            if(!usuario.Lectura && !usuario.Es_Admin){
-                console.log("escritura bloqueada a ", usuario);
-                res.send(Protocol.paqueteQuery(Protocol.QUERY_BLOCK, tablaNombre, null));
-                return;
-            }
-            let datos = Protocol.getQueryDatos(JSON.stringify(req.body));
-            const mod = Modelador.instanciar(datos.modelo, datos.data);
-
-            DAO.agregarRes(mod, (err, result, fields)=>{
-                if(err) {
-                    console.error("Error al agregar el registro", err);
-                    res.send(Protocol.paqueteAgregar(Protocol.QUERY_FAILURE, datos.modelo, null));
-                }
-                else {
-                    console.log("Nuevo registro agregado a: ", datos.modelo);
-                    res.send(Protocol.paqueteAgregar(Protocol.QUERY_SUCCESS, datos.modelo, null));
-                }
-            })
-            
-            break;
-    }
+    handleRequest(req, res);
 })
 const configura = new Encadenador();
 

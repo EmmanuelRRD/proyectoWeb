@@ -16,6 +16,8 @@ class Protocol {
     static QUERY_BLOCK = 2;
 
     static LOGBACK = 3;
+
+    static queryStack = [];
     /**
      * 
      * @param {Usuario} modelo 
@@ -42,6 +44,8 @@ class Protocol {
         return JSON.stringify(obj);
     }
     static handleConsulta(){}
+
+    
 }
 
 module.exports = Protocol;

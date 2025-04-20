@@ -6,12 +6,13 @@ export class Protocol {
     static LOGOUT = 1;
 
     static QUERY = 2;
+    static QUERY_STACK = 3;
     
-    static LOGBACK = 3;
+    static LOGBACK = 4;
 
-    static INSERT = 4;
-    static DELETE = 5;
-    static UPDATE = 6;
+    static INSERT = 5;
+    static DELETE = 6;
+    static UPDATE = 7;
 
     static LOGIN_SUCCESS = 0;
     static LOGIN_FAILURE = 1;
@@ -23,6 +24,8 @@ export class Protocol {
     static QUERY_FAILURE = 1;
     static QUERY_BLOCK = 2;
     
+    static queryStack =[];
+
     static paqueteLogin(modelo, estado){
         let d = [null, null, false, false, false];
         if(modelo != null){
@@ -36,19 +39,43 @@ export class Protocol {
     static paqueteLogback(){
         return JSON.stringify({data:[this.LOGBACK]});
     }
+    /**
+     * paquete de respuesta a consultas del servidor
+     * @param {number} estado 
+     * @param {string} modelo 
+     * @param {any} result 
+     * @returns {string}
+     */
     static paqueteQuery(estado, modelo, result){
         let obj = {
             data:[this.QUERY, estado, modelo, result]
         }
         return JSON.stringify(obj);
     }
+    /**
+     * paquete de respuesta a inserciones del servidor
+     * @param {number} estado 
+     * @param {string} modelo 
+     * @param {any} result 
+     * @returns {string}
+     */
+    static paqueteInsert(estado, modelo, result){
+        let obj = {
+            data:[this.INSERT, estado, modelo, result]
+        }
+        return JSON.stringify(obj);
+    }
+    /**
+     * formatea respuestas a consultas SQL del servidor
+     * @param {string} jsonQuery respuesta
+     */
     static getQueryDatos(jsonQuery){
         let d = JSON.parse(jsonQuery).data;
         return {
             header:d[0],
-            status:d[1],
             modelo:d[2],
-            data: d[3],
+            status:d[1],
+            result: d[3],
         }
     }
     static getDatos(data){
@@ -125,18 +152,38 @@ export class Protocol {
             default: error(d.status, d.modelo); break;
         }
     }
-    static paqueteAgregar(status, modelo, datos){
-        let obj = {data:[this.INSERT, status, modelo, datos]}
-        return obj;
+    static sendQuery(sql, objeto, pagina, resp=(res)=>{}){
+        this.enviarRequestJSON({data:[this.QUERY, objeto, sql]}, pagina, resp);
     }
-    static paqueteAgregarJSON(status, modelo, datos){
-        return JSON.stringify(this.paqueteAgregar(status, modelo, datos));
+    static sendInsert(sql, objeto, pagina, resp=(res)=>{}){
+        this.enviarRequestJSON({data:[this.INSERT, objeto, sql]}, pagina, resp);
     }
-    static getAgregar(datos){
-        console.log(datos);
+    static pushQuery(sql, objeto){
+        this.queryStack.push({data:[this.QUERY, objeto, sql]});
+        return this;
+    }
+    static sendStack(pagina, resp=(res)=>{}){
+        
+        this.enviarRequestJSON({data:[this.QUERY_STACK, "multi", this.queryStack]}, pagina, resp);
+        this.queryStack = [];
+    }
+    static parse(packet){//sirve tanto para procesar paquetes de consultas solas como para stacks
+        let p = packet.data;
         return {
-            status: datos[1],
-            datos: datos[2]
+            header:p[0],
+            object:p[1],
+            data:p[2]
         }
+    }
+    static paqueteSQL(err, result, fields){
+        let obj = {
+            err:err,
+            result:result,
+            fields:fields,
+        }
+        return JSON.stringify(obj);
+    }
+    static getPaqueteSQL(datos){
+        return JSON.parse(datos);
     }
 }

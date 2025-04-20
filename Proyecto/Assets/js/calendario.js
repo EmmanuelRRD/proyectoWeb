@@ -1,3 +1,4 @@
+import { DAO } from "../../controlador/DAO.mjs";
 import { Evento } from "../../modelo/Evento.mjs";
 import { Protocol } from "./protocol.mjs";
 
@@ -58,19 +59,15 @@ function requestAgregarEvento(id, fecha_inicio, empleado, nombre_cliente, apelli
   })
 }
 
-Protocol.enviarRequestJSON(consultarMes(year, month), "calendario", (res)=>{
-  //devuelve una lista de los eventos agendados durante todo el mes (en teoria)
-  Protocol.handleConsulta(res, (modelo, lista)=>{
-    console.log("DATOS RECIBIDOS > \n", modelo, lista);
-  },(codigo, modelo)=>{
-    console.log(codigo, Protocol.LOGBACK);
-    switch(codigo){
-      case Protocol.QUERY_FAILURE: console.log("vailo"); break;
-      case Protocol.QUERY_BLOCK: console.log("bloqueado"); break;
-      default: console.log("Error desconocido: ", codigo); break;
-    }
-  });
-  
+DAO.queryConsultar("calendario", "evento", null, ["YEAR(Fecha_Inicio)", "MONTH(Fecha_Inicio)"], [year, month], (err, lista)=>{
+  switch(err){
+    case Protocol.QUERY_SUCCESS:
+      console.log("CONSULTA EXITOSA: ", lista);
+      break;
+    default:
+      console.log("ERROR EN LA CONSULTA: ", err);
+      break;
+  }
 })
 
-requestAgregarEvento(1, `${year}-${month}-01`, "Dios", "El Jersa", "Jerusalem", 1, 1, 1, `${year}-${month}-01`);
+//requestAgregarEvento(1, `${year}-${month}-01`, "Dios", "El Jersa", "Jerusalem", 1, 1, 1, `${year}-${month}-01`);
