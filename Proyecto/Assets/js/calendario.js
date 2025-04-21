@@ -1,5 +1,6 @@
 import { DAO } from "../../controlador/DAO.mjs";
 import { Evento } from "../../modelo/Evento.mjs";
+import { Analizador } from "./Analizador.mjs";
 import { ErrorHandler } from "./ErrorHandler.mjs";
 import { Protocol } from "./protocol.mjs";
 
@@ -35,7 +36,16 @@ for (let i = 0; i < firstDay; i++) {
   const empty = document.createElement("div");
   daysContainer.appendChild(empty);
 }
-
+/**
+ * 
+ * @param {HTMLButtonElement} btn 
+ * @param {HTMLIFrameElement} frame
+ */
+function checarFormClick(btn, frame){
+  if(btn.dataset.formClick === true && btn.dataset.outClick === false){
+    console.log("FRAME SACAR");
+  }
+}
 // Crear días del mes
 for (let i = 1; i <= lastDate; i++) {
   const dayBtn = document.createElement("button");
@@ -43,7 +53,43 @@ for (let i = 1; i <= lastDate; i++) {
   dayBtn.dataset.day = i; // Guardamos el día en un atributo
   dayBtn.addEventListener("click", function () {
 
+    //agendar un evento
+
+    //samparle el formulario a cada boton
     console.log("Año y mes",this.textContent.monthYear,"Día seleccionado:", this.dataset.day);
+    let frame = document.createElement("iframe");
+    frame.setAttribute("class", "popmenu");
+    frame.src = "formularioEvento.html";
+    dayBtn.dataset.form = frame;
+
+    //variables pa checar si el usr le pica al frame o afuera
+    dayBtn.dataset.formClick = false;
+    dayBtn.dataset.outClick = false;
+
+    ///AAAAAA RAZA
+
+    frame.onload = (ev)=>{
+    //listener al document del frame por si el usuario clica mientras el frame existe
+    frame.contentWindow.document.addEventListener("click", (ev)=>{
+        if(!Analizador.revisarBool(dayBtn.dataset.formClick)){
+          frame.remove();
+        }else {
+            dayBtn.dataset.formClick = false; 
+        }
+      })
+
+      frame.contentWindow.document.getElementById("form").addEventListener("click", (ev)=>{
+        dayBtn.dataset.formClick = true;
+      })
+    }
+    
+    /**
+     * Como cerrar el frame si el usr pica fuera del form
+     * - si solo sale el event del document, pero no del body, significa que el usr le pico fuera del from
+     * - el evento del document sale despues del evento del form, se usa ese pa checar los clics
+     */
+
+    document.body.appendChild(frame);
   });
   daysContainer.appendChild(dayBtn);
   dias.set(i, dayBtn);

@@ -1,0 +1,37 @@
+body.popup {
+    position: fixed;
+	margin:0pt;
+    top: 50%;
+    left: 50%;
+	padding:0pt 10pt 14pt 2pt; /* surround drop shadow */
+	background-color: none;
+    transform: translate(-50%, -50%);
+}
+a {
+text-decoration: none ;
+}
+
+a:link { 
+color: #005F7F ;
+}
+
+a:active { 
+color: #00EFEF ;
+}
+
+a:visited { 
+color: #006F3F ;
+}
+
+div.popup {
+    position: relative;
+	width:22em; /* also sets wordwrap for long titles */
+	box-shadow: 4px 8px 6px 6px rgba(0,0,0,0.2);
+	margin: 0pt;
+	padding: 0pt;
+    
+	border: 1pt solid #BFCFDF;
+	border-radius:12pt;
+	background-color: #DFE7F7;
+    
+}
