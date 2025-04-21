@@ -4,32 +4,21 @@ import { Usuario } from "../modelo/usuario.mjs";
 import { Protocol } from "../Assets/js/protocol.mjs";
 
 export class DAO {
-    static conexion = null;//require("../ConexionBD/ConexionBD");
     constructor(){}
+    
     /**
      * 
      * @param {Modelo} modelo 
      */
-    static agregarRes(modelo, callback=(err, result, fields)=>{}){
+    static queryAgregar(modelo, pagina, callback=(res)=>{}){
         let sql = "INSERT INTO " + modelo.constructor.name + " VALUES(";
         sql += modelo.getDatosSQL().toString()+")";
 
-        DAO.conexion.ejecutarRes(sql, callback);
-    }
-    static queryAgregar(modelo){
-        let sql = "INSERT INTO " + modelo.constructor.name + " VALUES(";
-        sql += modelo.getDatosSQL().toString()+")";
-        return sql;
-    }
-    /**
-     * 
-     * @param {Modelo} modelo 
-     */
-    static agregar(modelo, callback=()=>{}){
-        let sql = "INSERT INTO " + modelo.constructor.name + " VALUES(";
-        sql += modelo.getDatosSQL().toString()+")";
-
-        DAO.conexion.ejecutar(sql, callback);
+        Protocol.sendInsert(sql, modelo.constructor.name, pagina, (res)=>{
+            let datos = Protocol.getQueryDatos(res);
+            if(Protocol.logCheck(datos.header)) return;
+            callback(datos);
+        } );
     }
     /**
      * Realiza una consulta con los parametros especificados, instancia los resultados y los ofrece en un arreglo dentro del callback
@@ -74,7 +63,7 @@ export class DAO {
         //query y procesar la respuesta
         Protocol.sendQuery(sql, tablaNombre, pagina, (res)=>{
             let datos = Protocol.getQueryDatos(res);
-            Protocol.logCheck(datos.header);
+            if(Protocol.logCheck(datos.header)) return;
             
             let lista = [];
             if(datos.status == Protocol.QUERY_SUCCESS){

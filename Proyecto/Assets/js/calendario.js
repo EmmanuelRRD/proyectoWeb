@@ -1,5 +1,6 @@
 import { DAO } from "../../controlador/DAO.mjs";
 import { Evento } from "../../modelo/Evento.mjs";
+import { ErrorHandler } from "./ErrorHandler.mjs";
 import { Protocol } from "./protocol.mjs";
 
 const monthYear = document.getElementById("monthYear");
@@ -8,7 +9,7 @@ const daysContainer = document.getElementById("daysContainer");
 const now = new Date();
 const year = now.getFullYear();
 const month = now.getMonth();
-
+const day = now.getDay();
 /**
  * @type {Map<string, HTMLButtonElement>}
  */
@@ -47,27 +48,63 @@ for (let i = 1; i <= lastDate; i++) {
   daysContainer.appendChild(dayBtn);
   dias.set(i, dayBtn);
 }
-//actualizar el calendario al entrar, solo los datos del mes visible
+
+///REGISTRO DE ERRORES PARA CALENDARIO
+
+ErrorHandler.registrarError(ErrorHandler.WRONG_VALUE, ()=>{
+  alert("Los datos del registro son incorrectos, verifique los campos");
+})
+ErrorHandler.registrarError(ErrorHandler.DUPLICATE_ENTRY, ()=>{
+  alert("Este registro ya existe");
+})
+
+
+//sacalos eventos del calendario
 function consultarMes(anio, mes){
-  return Protocol.consulta("evento", null, ["YEAR(Fecha_Inicio)", "MONTH(Fecha_Inicio)"], [anio, mes]);
-}
-function requestAgregarEvento(id, fecha_inicio, empleado, nombre_cliente, apellido_cliente, nombre_modelo, paquete_fotografico, tipo_evento, fecha_fin){
-  let ev = new Evento(id, fecha_inicio, empleado, nombre_cliente, apellido_cliente, nombre_modelo, paquete_fotografico, tipo_evento, fecha_fin);
-  let paq = Protocol.paqueteAgregar(0, ev.constructor.name, ev.getDatos());
-  Protocol.enviarRequestJSON(paq, "calendario", (res)=>{
-    console.log(res);
+  DAO.queryConsultar("calendario", "evento", null, ["YEAR(Fecha_Inicio)", "MONTH(Fecha_Inicio)"], [anio, mes], (err, lista)=>{
+    switch(err){
+  
+      case Protocol.QUERY_SUCCESS:
+  
+        console.log("CONSULTA EXITOSA: ", lista);
+        break;
+  
+      case Protocol.QUERY_BLOCK:
+  
+        console.log("CONSULTA EXITOSA: ", lista);
+        break;
+  
+      default:
+  
+        console.log("ERROR EN LA CONSULTA: ", err);
+        break;
+    }
   })
 }
 
-DAO.queryConsultar("calendario", "evento", null, ["YEAR(Fecha_Inicio)", "MONTH(Fecha_Inicio)"], [year, month], (err, lista)=>{
-  switch(err){
-    case Protocol.QUERY_SUCCESS:
-      console.log("CONSULTA EXITOSA: ", lista);
-      break;
-    default:
-      console.log("ERROR EN LA CONSULTA: ", err);
-      break;
-  }
-})
+function requestAgregarEvento(id, fecha_inicio, empleado, nombre_cliente, apellido_cliente, nombre_modelo, paquete_fotografico, tipo_evento, fecha_fin){
+  let ev = new Evento(id, fecha_inicio, empleado, nombre_cliente, apellido_cliente, nombre_modelo, paquete_fotografico, tipo_evento, fecha_fin);
+  DAO.queryAgregar(ev, "calendario", (datos)=>{
+      switch(datos.header){
 
-//requestAgregarEvento(1, `${year}-${month}-01`, "Dios", "El Jersa", "Jerusalem", 1, 1, 1, `${year}-${month}-01`);
+        case Protocol.QUERY_SUCCESS:
+
+          console.log("INSERCION EXITOSA")
+          consultarMes(year, month);
+          break;
+
+        case Protocol.QUERY_BLOCK:
+
+          console.log("INSERCION BLOQUEADA")
+          break;
+
+        default:
+          console.log("Error de instruccion: ", datos.status);
+          ErrorHandler.handelarError(datos.status);
+      }
+  })
+}
+
+consultarMes(year, month);
+
+requestAgregarEvento(4, `${year}-${month}-${day}`, "Dios", "El Jersa", "Jerusalem", 1, 1, 1, `${year}-${month}-${day}`);

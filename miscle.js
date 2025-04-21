@@ -82,7 +82,6 @@ function handlePacket(packet, res){
     } //varias instrucciones, costea mas usar transacciones
 }
 function handleRequest(req, res){
-    console.log("sasca: ", req.body);
     if(usuario == null){
         res.send(Protocol.paqueteLogback());
         return;
