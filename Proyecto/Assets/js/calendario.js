@@ -6,24 +6,42 @@ import { Protocol } from "./protocol.mjs";
 
 const monthYear = document.getElementById("monthYear");
 const daysContainer = document.getElementById("daysContainer");
+const selectorMes = document.getElementById("selectorMes");
+const selectorAnio = document.getElementById("selectorAnio");
 
 const now = new Date();
 const year = now.getFullYear();
 const month = now.getMonth();
 const day = now.getDay();
+
+console.log(now);
+console.log(year);
+console.log(month);
+console.log(day);
+
+const months = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", 
+  "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+
 /**
  * @type {Map<string, HTMLButtonElement>}
  */
 const dias = new Map();
 
-// Array de nombres de meses
-const months = [
-  "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-  "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
-];
+// Rellenar los meses
+months.forEach((mes, index) => {
+  const option = document.createElement("option");
+  option.value = index;
+  option.textContent = mes;
+  selectorMes.appendChild(option);
+});
 
-// Mostrar el mes y año actual
-monthYear.textContent = `${months[month]} ${year}`;
+// Rellenar años (por ejemplo de 1950 a 2100)
+for (let anio = 1950; anio <= 2030; anio++) {
+  const option = document.createElement("option");
+  option.value = anio;
+  option.textContent = anio;
+  selectorAnio.appendChild(option);
+}
 
 // Obtener el primer día del mes
 const firstDay = new Date(year, month, 1).getDay();
@@ -36,65 +54,92 @@ for (let i = 0; i < firstDay; i++) {
   const empty = document.createElement("div");
   daysContainer.appendChild(empty);
 }
+
 /**
  * 
  * @param {HTMLButtonElement} btn 
  * @param {HTMLIFrameElement} frame
  */
+
 function checarFormClick(btn, frame){
   if(btn.dataset.formClick === true && btn.dataset.outClick === false){
     console.log("FRAME SACAR");
   }
 }
-// Crear días del mes
-for (let i = 1; i <= lastDate; i++) {
-  const dayBtn = document.createElement("button");
-  dayBtn.textContent = i;
-  dayBtn.dataset.day = i; // Guardamos el día en un atributo
-  dayBtn.addEventListener("click", function () {
 
-    //agendar un evento
+function renderCalendar(year, month) {
+  // Limpiar días anteriores
+  daysContainer.innerHTML = "";
+  dias.clear();
 
-    //samparle el formulario a cada boton
-    console.log("Año y mes",this.textContent.monthYear,"Día seleccionado:", this.dataset.day);
-    let frame = document.createElement("iframe");
-    frame.setAttribute("class", "popmenu");
-    frame.src = "formularioEvento.html";
-    dayBtn.dataset.form = frame;
+  const firstDay = new Date(year, month, 1).getDay();
+  const lastDate = new Date(year, month + 1, 0).getDate();
 
-    //variables pa checar si el usr le pica al frame o afuera
-    dayBtn.dataset.formClick = false;
-    dayBtn.dataset.outClick = false;
+  //-------------------------------Espacios vacíos antes del primer día
+  for (let i = 0; i < firstDay; i++) {
+    const empty = document.createElement("div");
+    daysContainer.appendChild(empty);
+  }
 
-    ///AAAAAA RAZA
+  //{---------------------------------Crear botones de días-------------------------------------
+  for (let i = 1; i <= lastDate; i++) {
+    const dayBtn = document.createElement("button");
+    dayBtn.textContent = i;
+    dayBtn.dataset.day = i;
 
-    frame.onload = (ev)=>{
-    //listener al document del frame por si el usuario clica mientras el frame existe
-    frame.contentWindow.document.addEventListener("click", (ev)=>{
-        if(!Analizador.revisarBool(dayBtn.dataset.formClick)){
-          frame.remove();
-        }else {
-            dayBtn.dataset.formClick = false; 
-        }
-      })
+    dayBtn.addEventListener("click", function () {
+      const dia = this.dataset.day;
+      const mes = parseInt(selectorMes.value);
+      const anio = parseInt(selectorAnio.value);
 
-      frame.contentWindow.document.getElementById("form").addEventListener("click", (ev)=>{
-        dayBtn.dataset.formClick = true;
-      })
-    }
-    
-    /**
-     * Como cerrar el frame si el usr pica fuera del form
-     * - si solo sale el event del document, pero no del body, significa que el usr le pico fuera del from
-     * - el evento del document sale despues del evento del form, se usa ese pa checar los clics
-     */
+      console.log(`Fecha completa: ${anio}-${mes + 1}-${dia}`);
+      let frame = document.createElement("iframe");
+      frame.setAttribute("class", "popmenu");
+      frame.src = "formularioEvento.html";
+      dayBtn.dataset.form = frame;
+      dayBtn.dataset.formClick = false;
+      dayBtn.dataset.outClick = false;
 
-    document.body.appendChild(frame);
-  });
-  daysContainer.appendChild(dayBtn);
-  dias.set(i, dayBtn);
+      frame.onload = () => {
+        frame.contentWindow.document.addEventListener("click", () => {
+          if (!Analizador.revisarBool(dayBtn.dataset.formClick)) {
+            frame.remove();
+          } else {
+            dayBtn.dataset.formClick = false;
+          }
+        });
+
+        frame.contentWindow.document.getElementById("form").addEventListener("click", () => {
+          dayBtn.dataset.formClick = true;
+        });
+      };
+
+      document.body.appendChild(frame);
+    });
+
+    daysContainer.appendChild(dayBtn);
+    dias.set(i, dayBtn);
+  }
+
+  consultarMes(year, month + 1); // de 0- delante
 }
 
+selectorMes.value = month;  //La fecha de hoy
+selectorAnio.value = year;
+
+renderCalendar(year,month);
+
+selectorMes.addEventListener("change", () => {
+  const newMonth = parseInt(selectorMes.value);
+  const newYear = parseInt(selectorAnio.value);
+  renderCalendar(newYear, newMonth);
+});
+
+selectorAnio.addEventListener("change", () => {
+  const newMonth = parseInt(selectorMes.value);
+  const newYear = parseInt(selectorAnio.value);
+  renderCalendar(newYear, newMonth);
+});
 ///REGISTRO DE ERRORES PARA CALENDARIO
 
 ErrorHandler.registrarError(ErrorHandler.WRONG_VALUE, ()=>{

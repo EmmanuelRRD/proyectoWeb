@@ -104,7 +104,7 @@ app.use("/controlador", express.static(path.resolve("Proyecto/controlador")))
 app.get("/", (req, res)=>{
     res.redirect("/pages/index.html");
 })
-app.listen(8080, ()=>{
+app.listen(5500, ()=>{
     console.log("sv prendido like");
 })
 

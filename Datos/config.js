@@ -1,7 +1,7 @@
 
 module.exports = {
     init:{
-        adminUser:"admin",
+        adminUser:"Pedro",
         adminPass:"admin",
         rootPass:"root",
     }
