@@ -32,5 +32,22 @@ export class Evento extends Modelo {
     static foraneas(){
         return [true, false, true, false, false, false, false, false, false];
     }
+    static labels(){
+        return ["ID del evento", "Fecha de inicio", "Empleado", "Nombre del cliente", "Apellido del cliente", "Modelo", "Paquete fotografico", "Tipo de evento", "Fecha de fin"];
+    }
+    static componentes(){
+        return ["text", "date", "select", "text", "text", "select", "select", "select", "date"];
+    }
+    static exps(){
+        return [/\d/, null, null, null, /[A-za-z]/, /[A-za-z]/, null, null, null, null];
+    }
+    static longitudes(){
+        return [-1, -1, 32, 32, 32, -1, -1, -1, -1];
+    }
+    static especiales(){
+        return[
+            [""],["-","/"],[" "],[" "],[" "],[" "],[""],[""],[""],["-","/"]
+        ]
+    }
 }
 Modelador.registrarModelo(Evento);

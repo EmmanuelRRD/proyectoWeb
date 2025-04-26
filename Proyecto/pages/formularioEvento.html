@@ -8,18 +8,21 @@
             Protocol.enviarPagina("index");
         }
     </script>
+    <script type="module" src="../Assets/js/Formulario.mjs"></script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Datos</title>
     <link rel="stylesheet" href="/Assets/css/formularioEvento.css" />
 </head>
-<body>
-    <body class="popup">
-        <div class="popup" id="form">
-      
-          <p style="font-family: 'Courier New', Courier, monospace; margin:2em; text-align:center; font-weight:bold;">DATOS DEL EVENTO</p>
-      
+<body class="popup">
+    <div class="popup" id="form">
+        <p style="font-family: 'Courier New', Courier, monospace; margin:2em; text-align:center; font-weight:bold;">DATOS DEL EVENTO</p>
+
+        <div class="field" id="contenedor">
+            <!--izquierda datos, derecha botones -->
+            <div class="parte" id="campos"></div>
+            <div class="parte" id="botones"></div>
         </div>
-      </body>
+    </div>
 </body>
 </html>

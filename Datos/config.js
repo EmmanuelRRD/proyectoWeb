@@ -3,6 +3,6 @@ module.exports = {
     init:{
         adminUser:"Pedro",
         adminPass:"admin",
-        rootPass:"root",
+        rootPass:"chinga tu madre",
     }
 };

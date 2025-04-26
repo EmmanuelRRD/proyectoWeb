@@ -5,6 +5,12 @@ export class Modelo {
     static noNulos(){};
     static primarias(){};
     static foraneas(){};
+    static labels(){};
+    static componentes(){};
+    static exps(){};
+    static longitudes(){};
+    static especiales(){};
+
     getDatos(){
         let o = [];
         for(const fld in this){
