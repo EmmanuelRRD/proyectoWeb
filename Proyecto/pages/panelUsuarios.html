@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../Assets/css/stylePanelUsuarios.css" />
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+
+    <script type="module">
+        
+        import { Protocol } from "../Assets/js/protocol.mjs";
+        if(Protocol.getUserDatos() == null) {
+            Protocol.enviarPagina("index");
+        }
+        
+    </script>
+    <title>panel Usuarios</title>
+</head>
+<body>
+    
+    <div class="barraIzquierda">
+        <h1>Búsqueda</h1>
+
+        <form action="busqueda">
+
+            <label>Código</label><br>
+            <input type="checkbox" name="confirmarCode" value=true>
+            <input type="text" id="cCode" name="nombre" placeholder="Buscar"><br>
+
+            <label>Nombre</label><br>
+            <input type="checkbox" name="confirmarNombre" value=true>
+            <input type="text" id="cNombre" name="nombre" placeholder="Buscar"><br>
+
+            <label>Existencias</label><br>
+            <input type="checkbox" name="confirmarExistencias" value=true>
+            <input type="text" id="cExistencias" name="nombre" placeholder="Buscar"><br>
+
+            <button type="submit"><i class='bx bx-search'></i></button><!-- bx bx-search  son los iconos la lupa -->
+
+        </form>
+
+    </div>
+
+    <!-- Parte del nombre -->
+    <div class="derecho">   
+    <div class="panelUsuarios">
+        <label for="text" class="titulo">Panel Usuarios</label>
+    </div>
+
+    <!-- Boton de agregar a la tabla -->
+    <div class="btnAgregar">
+        <button class="btnTabla"><i class='bx bx-plus'></i></button> <!-- Icono agregar -->
+    </div>
+    <div class="info">
+
+        <!-- Esta tabla de clase inventarios abajo bienen los iconos ya importados para implementarlos, ya solo seria mandarlos llamr asi-->
+        <table class="tablaInventarios" >
+            <tr>
+              <th>Usuario</th>
+              <th>Contraseña</th>
+              <th>Modificar</th>
+              <th>Eliminar</th>
+            </tr>
+            <tr>
+              <th>Código</th>
+              <th>Nombre</th>
+              <td><button class="btnTabla"><i class='bx bx-edit'></i></button></td> <!-- Icono editar -->
+              <td><button class="btnTabla"><i class='bx bx-trash'></button></td> <!-- Icono Eliminar -->
+
+            
+            </tr>
+          </table>
+    </div>
+</div> 
+
+</body>
+</html>

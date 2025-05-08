@@ -1,8 +1,8 @@
 
 module.exports = {
     init:{
-        adminUser:"Pedro",
+        adminUser:"Emmanuel",
         adminPass:"admin",
-        rootPass:"chinga tu madre",
+        rootPass:"root",
     }
 };

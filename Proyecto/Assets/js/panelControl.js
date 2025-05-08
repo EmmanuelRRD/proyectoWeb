@@ -22,3 +22,7 @@ document.getElementById("btnLogout").addEventListener("click", (ev)=>{
         }
     })
 })
+
+document.getElementById("btnAdminUsers").addEventListener("click", (ev)=>{
+    window.location.href = "panelUsuario.html";
+})

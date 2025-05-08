@@ -46,10 +46,10 @@ body {
 .barraIzquierda input[type="text"] {
     width: 100%;
     padding: 12px;
-    margin-bottom: 50px; /* Mayor separación entre inputs */
-    border: 2px solid #fff; /* Bordes más claros */
+    margin-bottom: 15px;
+    border: 2px solid #fff;
     border-radius: 8px;
-    background-color: #f4f4f4; /* Fondo suave para los inputs */
+    background-color: #f4f4f4;
     color: #333;
     font-size: 16px;
 }
@@ -73,13 +73,35 @@ body {
     font-size: 18px;
 }
 
+
 .barraIzquierda button:hover {
     box-shadow: 4px 4px 10px  rgba(63, 84, 20, 0.5);
 }
 
-/* El div de la derecha */
 .derecho {
     width: 100%;
+}
+/* Botón de agregar */
+.btnAgregar {
+    margin-top: 30px;
+    margin-left: 30px;
+}
+
+.btnTabla {
+    background-color: rgb(23, 180, 80);
+    color: white;
+    padding: 10px 16px;
+    font-size: 18px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btnTabla:hover {
+    background-color: rgb(16, 117, 53);
 }
 
 /* Pestañas para Material y Equipo */
