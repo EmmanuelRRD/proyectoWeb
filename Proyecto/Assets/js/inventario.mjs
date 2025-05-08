@@ -1,5 +1,6 @@
 import { DAO } from "../../controlador/DAO.mjs";
-import { Articulo_Inventario } from "../../modelo/Articulo.mjs";
+import { Articulo_Equipo } from "../../modelo/Articulo_Equipo.mjs";
+import { Articulo_Inventario } from "../../modelo/Articulo_Inventario.mjs";
 import { Modelador } from "../../modelo/Modelador.mjs";
 import { Analizador } from "./Analizador.mjs";
 import { ErrorHandler } from "./ErrorHandler.mjs";
@@ -7,6 +8,40 @@ import { Formulario } from "./Formulario.mjs";
 import { Protocol } from "./protocol.mjs";
 
 let CODIGO_SELECCION = null;
+let ROW_SELECCION = null;
+
+let TIPO_INVENTARIO = "material";
+
+function cambiarSeleccion(codigo, row){
+    CODIGO_SELECCION = codigo;
+    if(ROW_SELECCION != null){
+        //colorsito de seleccion quitado
+    }
+    if(row != null){
+        //colorsito de seleccion ponido
+    }
+    ROW_SELECCION = row;
+}
+document.getElementById("btnMaterial").addEventListener("click", (ev)=>{
+    TIPO_INVENTARIO = "material";
+    cambiarSeleccion(null, null);
+    document.getElementById("btnMaterial").style.backgroundColor = "cyan";
+    document.getElementById("btnEquipo").style.backgroundColor = "rgb(23, 180, 80)";
+    
+    configurarActualizarTabla();
+})
+
+document.getElementById("btnEquipo").addEventListener("click", (ev)=>{
+    TIPO_INVENTARIO = "equipo";
+    cambiarSeleccion(null, null);
+    document.getElementById("btnEquipo").style.backgroundColor = "cyan";
+    document.getElementById("btnMaterial").style.backgroundColor = "rgb(23, 180, 80)";
+
+    configurarActualizarTabla();
+})
+
+
+
 /**
  * @type {HTMLFormElement}
  */
@@ -15,13 +50,12 @@ let formHTML = document.getElementById("formulario");
  * @type {HTMLTableElement}
  */
 let tabla = document.getElementsByClassName("tablaInventarios")[0];
-
-function consultarArticulosLike(f=(lista)=>{}){
+function consultarTablaLike(tabla, f=(lista)=>{}){
     let id = document.getElementById("cId").value;
     let nombre = document.getElementById("cNombre").value;
     let existencias = document.getElementById("cExistencias").value
 
-    DAO.queryConsultarLike("inventario", Articulo_Inventario.name, null, ["Id","Nombre", "Existencias"], [id+"%", nombre+"%", existencias+"%"], (err, lista)=>{
+    DAO.queryConsultarLike("inventario", tabla, null, ["Id","Nombre", "Existencias"], [id+"%", nombre+"%", existencias+"%"], (err, lista)=>{
         switch(err){
             case Protocol.QUERY_SUCCESS:
             f(lista);
@@ -35,74 +69,41 @@ function consultarArticulosLike(f=(lista)=>{}){
         }
     })
 }
+function consultarArticulosLike(f=(lista)=>{}){
+    consultarTablaLike(Articulo_Inventario.name, f);
+}
+function consultarEquiposLike(f=(lista)=>{}){
+    consultarTablaLike(Articulo_Equipo.name, f);
+}
 
 ///auto busqueda por tecleo
 
 document.getElementById("cId").addEventListener("keyup", (ev)=>{
-    consultarArticulosLike((lista)=>{
+    let cons = consultarArticulosLike;
+
+    if(TIPO_INVENTARIO == "equipo") cons = consultarEquiposLike;
+    cons((lista)=>{
         configurarActualizarTablaEspecifico(lista);
     })
 });
 document.getElementById("cNombre").addEventListener("keyup", (ev)=>{
-    consultarArticulosLike((lista)=>{
+    let cons = consultarArticulosLike;
+
+    if(TIPO_INVENTARIO == "equipo") cons = consultarEquiposLike;
+    cons((lista)=>{
         configurarActualizarTablaEspecifico(lista);
     })
 });
 document.getElementById("cExistencias").addEventListener("keyup", (ev)=>{
-    consultarArticulosLike((lista)=>{
+    let cons = consultarArticulosLike;
+
+    if(TIPO_INVENTARIO == "equipo") cons = consultarEquiposLike;
+    cons((lista)=>{
         configurarActualizarTablaEspecifico(lista);
     })
 });
 
-
-function configurarActualizarTabla(){
-    Formulario.resetearRegistros(tabla);
-    consultarArticulos((lista)=>{
-        console.log("mostrando: " + lista.length + " regis");
-        
-        Formulario.actualizarTablaCalls(tabla, lista, "Id",
-            /**
-             * 
-             * @param {MouseEvent} ev 
-             * @param {HTMLTableRowElement} row 
-             */
-            (ev, row)=>{
-                CODIGO_SELECCION = row.getAttribute("id");
-                //poner los campos en el formulario
-                
-                consultarArticuloId(CODIGO_SELECCION, (lista)=>{
-                    if(lista.length ==0) return;
-
-                    /**
-                     * @type {Articulo_Inventario}
-                     */
-                    let mod = lista[0];
-
-                    document.getElementById("cId").setAttribute("value", mod.Id);
-                    document.getElementById("cNombre").setAttribute("value", mod.Nombre);
-                    document.getElementById("cExistencias").setAttribute("value", mod.Existencias);
-                    
-                })
-            }, 
-            /**
-             * 
-             * @param {MouseEvent} ev 
-             * @param {HTMLTableRowElement} row 
-             */
-            (ev, row)=>{
-                CODIGO_SELECCION = null;
-                eliminarArticuloId(""+row.getAttribute("id"), (res)=>{
-                    alert("Articulo eliminado")
-                    configurarActualizarTabla();
-                });
-                
-        });
-    })
-}
-function configurarActualizarTablaEspecifico(lista){
-    Formulario.resetearRegistros(tabla);
-    console.log("mostrando: " + lista.length + " regis");
-        
+function rellenarTabla(tabla, lista, consulta=(id, call=(lista)=>{})=>{}, eliminacion=(id, call=(datos)=>{})=>{}){
     Formulario.actualizarTablaCalls(tabla, lista, "Id",
         /**
          * 
@@ -110,14 +111,14 @@ function configurarActualizarTablaEspecifico(lista){
          * @param {HTMLTableRowElement} row 
          */
         (ev, row)=>{
-            CODIGO_SELECCION = row.getAttribute("id");
+            cambiarSeleccion(row.getAttribute("id"), row);
             //poner los campos en el formulario
             
-            consultarArticuloId(CODIGO_SELECCION, (lista)=>{
+            consulta(CODIGO_SELECCION, (lista)=>{
                 if(lista.length ==0) return;
 
                 /**
-                 * @type {Articulo_Inventario}
+                 * @type {Articulo_Inventario | Articulo_Equipo}
                  */
                 let mod = lista[0];
 
@@ -133,14 +134,50 @@ function configurarActualizarTablaEspecifico(lista){
          * @param {HTMLTableRowElement} row 
          */
         (ev, row)=>{
-            CODIGO_SELECCION = null;
-            eliminarArticuloId(""+row.getAttribute("id"), (res)=>{
-                alert("Articulo eliminado")
+            cambiarSeleccion(null, null);
+            eliminacion(""+row.getAttribute("id"), (res)=>{
+                alert("Registro eliminado")
                 configurarActualizarTabla();
             });
             
     });
 }
+
+function configurarActualizarTabla(){
+
+    ///haz que cambie las consultas segun el tipode inventario
+    let consulta = consultarArticulos;
+    let consultaId = consultarArticuloId;
+    let eliminar = eliminarArticuloId;
+
+    if(TIPO_INVENTARIO == "equipo"){
+        consulta = consultarEquipos;
+        consultaId = consultarEquipoId;
+        eliminar = eliminarEquipoId;
+    }
+
+    Formulario.resetearRegistros(tabla);
+    consulta((lista)=>{
+        console.log("mostrando: " + lista.length + " regis");
+        rellenarTabla(tabla, lista, consultaId, eliminar);
+    })
+}
+function configurarActualizarTablaEspecifico(lista){
+
+    let consultaId = consultarArticuloId;
+    let eliminar = eliminarArticuloId;
+
+    if(TIPO_INVENTARIO == "equipo"){
+        consultaId = consultarEquipoId;
+        eliminar = eliminarEquipoId;
+    }
+
+    Formulario.resetearRegistros(tabla);
+    console.log("mostrando: " + lista.length + " regis");
+        
+    rellenarTabla(tabla, lista, consultaId, eliminar);
+}
+
 configurarActualizarTabla();
 
 
@@ -152,9 +189,10 @@ formHTML.addEventListener("submit", (ev)=>{
     let codigo = ev.target.id.value;
     let nombre = ev.target.nombre.value;
     let existencias = ev.target.existencias.value;
-
+    let tipo = Articulo_Inventario;
+    if(TIPO_INVENTARIO == "equipo") tipo = Articulo_Equipo;
     //poner los datos del form en un objeto de formulario para poder validarlos
-    let form = Formulario.crearDeModelo(Articulo_Inventario);
+    let form = Formulario.crearDeModelo(tipo);
     form.generar();
     
     
@@ -177,20 +215,26 @@ formHTML.addEventListener("submit", (ev)=>{
     if(allBad.length > 0) {
         alert(allBad.join("\n")); return;
     }else{
-        
+        let agrega = agregarArticulo;
+        let modifica = modificarArticuloId
+
+        if(TIPO_INVENTARIO == "equipo"){
+            agrega = agregarEquipo;
+            modifica = modificarEquipoId;
+        }
         let data = Formulario.extraer(form);
-        let modelo = Modelador.instanciar(Articulo_Inventario.name, data);
+        let modelo = Modelador.instanciar(tipo.name, data);
         
         console.log(modelo);
         if(CODIGO_SELECCION == null){
-            agregarArticulo(modelo, (datos)=>{
+            agrega(modelo, (datos)=>{
                 //actualizar la tabla
-                alert("Articulo agregado")
+                alert("Registro agregado")
                 configurarActualizarTabla();
             })
         }else {
-            modificarArticuloId(modelo, CODIGO_SELECCION, (datos)=>{
-                alert("Articulo modificado");
+            modifica(modelo, CODIGO_SELECCION, (datos)=>{
+                alert("Registro modificado");
                 configurarActualizarTabla();
             })
         }
@@ -207,29 +251,10 @@ ErrorHandler.registrarError(ErrorHandler.WRONG_VALUE, ()=>{
     alert("Este registro ya existe");
   })
 
-function agregarArticulo(modelo, call = (datos) => { }) {
-    DAO.queryAgregar(modelo, "inventario", (datos) => {
-        switch (datos.status) {
-            case Protocol.QUERY_SUCCESS:
+///FUNCIONES DE CAMBIO
+function modificarTablaId(tabla, alertTipo, modelo, id, call=(datos)=>{}){
 
-                console.log("INSERCION EXITOSA")
-                call(datos);
-                break;
-
-            case Protocol.QUERY_BLOCK:
-                alert("No tiene permitido insertar artículos");
-                console.log("INSERCION BLOQUEADA")
-                break;
-
-            default:
-                console.log("Error de instruccion: ", datos.status);
-                ErrorHandler.handelarError(datos.status);
-        }
-    })
-}
-function modificarArticuloId(modelo, id, call=(datos)=>{}){
-    
-    consultarArticuloId(id, (lista)=>{
+    consultarId(tabla, "Id", id, (lista)=>{
         if(lista.length == 0) return;
         DAO.queryCambiarModelo("inventario", modelo, [id], (res)=>{
 
@@ -242,8 +267,8 @@ function modificarArticuloId(modelo, id, call=(datos)=>{}){
                     break;
     
                 case Protocol.QUERY_BLOCK:
-                    alert("No tiene permitido modificar artículos");
-                    console.log("CAMBIO BLOQUEADA")
+                    alert("No tiene permitido modificar " + alertTipo);
+                    console.log("CAMBIO BLOQUEADO")
                     break;
     
                 default:
@@ -253,9 +278,20 @@ function modificarArticuloId(modelo, id, call=(datos)=>{}){
         })
     })
 }
-function consultarArticulos(l=(lista)=>{}){
-    DAO.queryConsultar("inventario", Articulo_Inventario.name, null, null, null, (error, lista)=>{
-        switch (error) {
+
+///CAMBIO DE ARTICULOS
+function modificarArticuloId(modelo, id, call=(datos)=>{}){
+    modificarTablaId(Articulo_Inventario.name, "articulos", modelo, id, call);
+}
+///CAMBIO DE EQUIPO
+function modificarEquipoId(modelo, id, call=(datos)=>{}){
+    modificarTablaId(Articulo_Equipo.name, "equipo fotografico", modelo, id, call);
+}
+
+///FUNCIONES DE CONSULTA
+function consultarTabla(tabla, selecNombres=[], filtroNombres=[], filtroValores=[], l=(lista)=>{}){
+    DAO.queryConsultar("inventario", tabla, selecNombres, filtroNombres, filtroValores, (err, lista)=>{
+        switch (err) {
             case Protocol.QUERY_SUCCESS:
 
                 console.log("CONSULTA EXITOSA")
@@ -272,30 +308,63 @@ function consultarArticulos(l=(lista)=>{}){
                 ErrorHandler.handelarError(error);
         }
     })
+}
+function consultarGlobal(tabla, l=(lista)=>{}){
+    consultarTabla(tabla, null, null, null, l);
+}
+function consultarId(tabla, idNombre, id, l=(lista)=>{}){
+    consultarTabla(tabla, null, [idNombre], [id], l);
+}
+//FUNCION DE AGREGAR
+function agregarTabla(tipoAlert, modelo, l=(datos)=>{}){
+    DAO.queryAgregar(modelo, "inventario", (datos) => {
+        switch (datos.status) {
+            case Protocol.QUERY_SUCCESS:
+
+                console.log("INSERCION EXITOSA")
+                l(datos);
+                break;
+
+            case Protocol.QUERY_BLOCK:
+                alert("No tiene permitido insertar " + tipoAlert);
+                console.log("INSERCION BLOQUEADA")
+                break;
+
+            default:
+                console.log("Error de instruccion: ", datos.status);
+                ErrorHandler.handelarError(datos.status);
+        }
+    })
+}
+
+//CONSULTAS DE ARTICULOS
+function consultarArticulos(l=(lista)=>{}){
+    consultarGlobal(Articulo_Inventario.name, l);
 }
 function consultarArticuloId(id, l=(lista)=>{}){
-    DAO.queryConsultar("inventario", Articulo_Inventario.name, null, ["Id"], [id], (error, lista)=>{
-        switch (error) {
-            case Protocol.QUERY_SUCCESS:
-
-                console.log("CONSULTA EXITOSA")
-                l(lista);
-                break;
-
-            case Protocol.QUERY_BLOCK:
-                alert("No tiene permitido consultar artículos");
-                console.log("CONSULTA BLOQUEADA")
-                break;
-
-            default:
-                console.log("Error de instruccion: ", error);
-                ErrorHandler.handelarError(error);
-        }
-    })
+    consultarId(Articulo_Inventario.name, "Id", id, l);
 }
 
-function eliminarArticuloId(id, l=(datos)=>{}){
-    DAO.queryEliminarPrimaria("inventario", Articulo_Inventario.name, id, (datos)=>{
+//CONSULTAS DE EQUIPO
+function consultarEquipos(l=(lista)=>{}){
+    consultarGlobal(Articulo_Equipo.name, l);
+}
+function consultarEquipoId(id, l=(lista)=>{}){
+    consultarId(Articulo_Equipo.name, "Id", id, l);
+}
+
+//AGREGAR ARTICULOS
+function agregarArticulo(modelo, call = (datos) => { }) {
+    agregarTabla("articulos", modelo, call)
+}
+//AGREGAR EQUIPOS
+function agregarEquipo(modelo, call = (datos) => { }) {
+    agregarTabla("equipo fotográfico", modelo, call)
+}
+
+///FUNCIONES DE ELIMINACION 
+function eliminarTablaId(alertTipo, tabla, id, l=(datos)=>{}){
+    DAO.queryEliminarPrimaria("inventario", tabla, id, (datos)=>{
         switch(datos.status){
             case Protocol.QUERY_SUCCESS:
 
@@ -304,7 +373,7 @@ function eliminarArticuloId(id, l=(datos)=>{}){
                 break;
             case Protocol.QUERY_BLOCK:
 
-                alert("No tiene permiso para eliminar eventos");
+                alert("No tiene permiso para eliminar " + alertTipo);
                 break;
             default:
 
@@ -312,4 +381,13 @@ function eliminarArticuloId(id, l=(datos)=>{}){
                 ErrorHandler.handelarError(datos.status);
         }
     })
+}
+
+//BAJAS ARTICULOS
+function eliminarArticuloId(id, l=(datos)=>{}){
+    eliminarTablaId("articulos", Articulo_Inventario.name, id, l);
+}
+//BAJAS EQUIPO
+function eliminarEquipoId(id, l=(datos)=>{}){
+    eliminarTablaId("equipo fotografico", Articulo_Equipo.name, id, l);
 }

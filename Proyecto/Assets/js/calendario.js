@@ -541,4 +541,4 @@ function requestAgregarModelo(modelo, call=(code)=>{return}){
 
 consultarMes(year, month);
 
-requestAgregarEvento(7, `${year}-${month+1}-${day}`, "Dios", "El Jersa", "Jerusalem", 1, 1, 1, `${year}-${month+1}-${day}`);
+//requestAgregarEvento(7, `${year}-${month+1}-${day}`, "Dios", "El Jersa", "Jerusalem", 1, 1, 1, `${year}-${month+1}-${day}`);
