@@ -174,7 +174,7 @@ export class Protocol {
         this.enviarRequestJSON({data:[this.UPDATE, objeto, sql]}, pagina, resp);
     }
     static sendDelete(sql, objeto, pagina, resp=(res)={}){
-        this.enviarRequestJSON({data:[this.UPDATE, objeto, sql]}, pagina, resp);
+        this.enviarRequestJSON({data:[this.DELETE, objeto, sql]}, pagina, resp);
     }
     static pushQuery(sql, objeto){
         this.queryStack.push({data:[this.QUERY, objeto, sql]});

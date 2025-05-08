@@ -178,4 +178,48 @@ export class DAO {
         Protocol.pushQuery(sql, "Usuario").pushQuery(DAO.queryAgregar(modelo), "Usuario");
         Protocol.sendStack(pagina, callback);
     }
+    /**
+     * 
+     * @param {Usuario} modelo 
+     * @param {Usuario} original 
+     * @param {string} pagina 
+     * @param {(res)=>{}} callback 
+     */
+    static actualizarUsuario(modelo, original, pagina, callback=(res)=>{return}){
+        let setNoms = Modelador.getCamposNombre("Usuario");
+        let vals = modelo.getDatos();
+        this.queryCambiar("calendario", "mysql.user", setNoms, vals, ["Nombre"], [original.Nombre], (datos)=>{
+            let usr = `'${modelo.Nombre}'@'localhost'`;
+            let resetea = `REVOKE SELECT, DELETE, UPDATE, INSERT ON PhotoCalendar.* FROM ${usr}`;
+            let privs = "GRANT "
+            let privList = [];
+            if(modelo.Es_Admin){
+                privs = `GRANT ALL PRIVILEGES ON PhotoCalendar.* TO ${usr} WITH GRANT OPTION`;
+            }else{
+                
+                if(modelo.Escritura) privList.push("UPDATE", "DELETE", "INSERT");
+                if(modelo.Lectura) privList.push("SELECT");
+                privs += privList.join(", ") + ` ON PhotoCalendar.* TO  ${usr}`;
+            }
+
+            let final = resetea;
+            if(privs != "GRANT ") final+=";"+privs;
+            final+=";"+ "FLUSH PRIVILEGES";
+
+            Protocol.sendUpdate(final, "Usuario", pagina, callback);
+        })
+    }
+    /**
+     * 
+     * @param {Usuario} modelo 
+     * @param {string} pagina 
+     * @param {(res)=>{}} callback 
+     */
+    static eliminarUsuario(modelo, pagina, callback=(res)=>{return}){
+        let usr = `'${modelo.Nombre}'@'localhost'`;
+        let sql = "DROP USER "+ usr;
+        this.queryEliminarPrimaria(pagina, "Usuario", modelo.Nombre, (res)=>{
+            Protocol.sendQuery(sql, "Usuario", "calendar", callback);
+        })
+    }
 }

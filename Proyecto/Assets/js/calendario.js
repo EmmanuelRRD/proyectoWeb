@@ -325,7 +325,6 @@ function pintarDiasEventos(lista){
   lista.forEach(ev=>{
     let dia = dias.get(obtenerInicioEvento(ev)+1);
     let diff = getProximidad(ev.Fecha_Inicio+"T00:00");
-    console.log(diff,obtenerInicioEvento(ev)+1);
     
     if(diff.getTime() < 0) {
       console.log("griso");
