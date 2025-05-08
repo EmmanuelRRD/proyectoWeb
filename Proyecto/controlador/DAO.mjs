@@ -106,6 +106,7 @@ export class DAO {
         let set = " SET ";
         let where = " WHERE ";
         let i = 0;
+        
         setNombres.forEach(nom=>{//formatear parte del SET
             let dato = setValores[i].toString();
             if(typeof setValores[i] == 'string') dato= "'"+setValores[i]+"'";
@@ -113,20 +114,23 @@ export class DAO {
 
             i++;
         })
-        set = set.slice(-2);
+        
+        set = set.substring(0, set.length-2);
         i = 0;
+        
         filtroNombres.forEach(nombre=>{
             let dato = filtroValores[i].toString();
             if(typeof filtroValores[i] == 'string') dato= "'"+filtroValores[i]+"'";
             where += nombre +"="+dato+" AND ";
+            i++;
         })
-        where = where.slice(-5);
+        where = where.substring(0, where.length-5);
         let final = sql;
         final += set;
         final += where;
-
-        Protocol.sendUpdate(filtroNombres, tablaNombre, pagina, (res)=>{
-            let datos = Protocol.getDatos(res);
+        
+        Protocol.sendUpdate(final, tablaNombre, pagina, (res)=>{
+            let datos = Protocol.getQueryDatos(res);
             if(Protocol.logCheck(datos.header)) return;
             callback(datos);
         })
@@ -144,6 +148,7 @@ export class DAO {
             primariasNombres.push(noms[idx]);
         })
         
+        
         this.queryCambiar(pagina, modelo.constructor.name, noms, modelo.getDatos(), primariasNombres, primariasValores, call)
     }
     static queryEliminarPrimaria(pagina, tabla, primaria, call=(res)=>{}){
@@ -159,7 +164,7 @@ export class DAO {
 
         let final = sql+where
         Protocol.sendDelete(final, tabla, pagina, (res)=>{
-            let datos = Protocol.getDatos(res);
+            let datos = Protocol.getQueryDatos(res);
             if(Protocol.logCheck(datos.header)) return;
             call(datos);
         })

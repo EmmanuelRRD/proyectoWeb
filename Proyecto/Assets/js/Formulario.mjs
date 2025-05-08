@@ -1,3 +1,4 @@
+import { Modelador } from "../../modelo/Modelador.mjs";
 import { Modelo } from "../../modelo/Modelo.mjs";
 import { Analizador } from "./Analizador.mjs";
 
@@ -285,5 +286,130 @@ export class Formulario {
     }
     accionEliminar(call=(ev)=>{return}){
         this.btnEliminar.onclick = call;
+    }
+    /**
+     * 
+     * @param {Modelo} modelo 
+     * @param {*} id 
+     * @returns {HTMLTableRowElement}
+     */
+    static crearRegistro(modelo, id){
+
+        let r = document.createElement("tr");
+        r.setAttribute("id", id);
+        
+        let datos = modelo.getDatos();
+        let noms = Modelador.getCamposNombre(modelo.constructor.name);
+        let i = 0;
+        //dice q es funcion pero es un dato
+        datos.forEach((dato)=>{
+            let th = document.createElement("th");
+            th.setAttribute("id", noms[i]);
+            th.innerHTML = dato;
+            r.appendChild(th);
+            i++;
+        })
+        let btnEditar = this.makeBotonTabla("bx bx-edit", id+"_editar");
+        let btnEliminar = this.makeBotonTabla("bx bx-trash", id+"_eliminar");
+        let td1 = document.createElement("td");
+        td1.appendChild(btnEditar);
+        let td2 = document.createElement("td");
+        td2.appendChild(btnEliminar);
+
+        r.appendChild(td1);
+        r.appendChild(td2);
+        //agregar quiza
+
+        
+        //agregar botones
+        return r;   
+    }
+    static crearRegistroCalls(modelo, id, editar=(ev, row)=>{}, eliminar=(ev, row)=>{}){
+        
+        let r = document.createElement("tr");
+        r.setAttribute("id", id);
+        
+        let datos = modelo.getDatos();
+        let noms = Modelador.getCamposNombre(modelo.constructor.name);
+        let i = 0;
+        //dice q es funcion pero es un dato
+        datos.forEach((dato)=>{
+            let th = document.createElement("th");
+            th.setAttribute("id", noms[i]);
+            th.innerHTML = dato;
+            r.appendChild(th);
+        })
+        let btnEditar = this.makeBotonTabla("bx bx-edit", id+"_editar");
+        let btnEliminar = this.makeBotonTabla("bx bx-trash", id+"_eliminar");
+        let td1 = document.createElement("td");
+        td1.appendChild(btnEditar);
+        let td2 = document.createElement("td");
+        td2.appendChild(btnEliminar);
+
+        btnEditar.addEventListener("click", (ev)=>{
+            editar(ev, r);
+        });
+        btnEliminar.addEventListener("click", (ev)=>{
+            
+            
+            eliminar(ev, r);
+        });
+
+        r.appendChild(td1);
+        r.appendChild(td2);
+        //agregar quiza
+
+        
+        //agregar botones
+        return r;   
+    }
+    /**
+     * @param {HTMLTableElement} tabla 
+     * @param {Modelo[]} modelos 
+     * @param {string} idNombre 
+     */
+    static agregarRegistros(tabla, modelos, idNombre){
+        modelos.forEach(modelo=>{
+            console.log("REGISTRO: ", modelo, modelo[idNombre]);
+            
+            let r = this.crearRegistro(modelo, modelo[idNombre]);
+            tabla.tBodies[0].appendChild(r);
+        })
+    }
+    static agregarRegistrosCalls(tabla, modelos, idNombre, editar=(ev)=>{}, eliminar=(ev)=>{}){
+        modelos.forEach(modelo=>{
+            
+            let r = this.crearRegistroCalls(modelo, modelo[idNombre], editar, eliminar);
+            tabla.tBodies[0].appendChild(r);
+        })
+    }
+    /**
+     * 
+     * @param {HTMLTableElement} tabla 
+     */
+    static resetearRegistros(tabla){
+        let bd = tabla.tBodies[0]
+        while(bd.lastChild){
+            if(bd.childElementCount == 1) break;
+            bd.removeChild(bd.lastChild)
+        }
+    }
+    static actualizarTabla(tabla, modelos, idxNombre){
+        this.resetearRegistros(tabla);
+        this.agregarRegistros(tabla, modelos, idxNombre);
+    }
+    static actualizarTablaCalls(tabla, modelos, idxNombre, editar=(ev)=>{}, eliminar=(ev)=>{}){
+        this.resetearRegistros(tabla);
+        this.agregarRegistrosCalls(tabla, modelos, idxNombre, editar, eliminar);
+    }
+    static makeBotonTabla(iconoClass, id){
+        let btn = document.createElement("button");
+        btn.setAttribute("id", id);
+        btn.setAttribute("class", "btnTabla")
+        let icon = document.createElement("i");
+        icon.setAttribute("class", iconoClass);
+
+        btn.appendChild(icon);
+        return btn;
     }
 }

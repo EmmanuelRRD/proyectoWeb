@@ -30,7 +30,7 @@ export class Evento extends Modelo {
         return [0];
     }
     static foraneas(){
-        return [true, false, true, false, false, false, false, false, false];
+        return [2];
     }
     static labels(){
         return ["ID del evento", "Fecha de inicio", "Empleado", "Nombre del cliente", "Apellido del cliente", "Modelo", "Paquete fotografico", "Tipo de evento", "Fecha de fin"];

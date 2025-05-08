@@ -8,7 +8,7 @@ export class ErrorHandler {
     static handlerMap = new Map();
 
     static WRONG_VALUE = 1292;
-    static DUPLICATE_ENTRY = 1602;
+    static DUPLICATE_ENTRY = 1062;
     /**
      * Si existe, ejecuta la funcion de respuesta al codigo de error dado
      * @param {number} errno 

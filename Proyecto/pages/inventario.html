@@ -2,6 +2,12 @@
 <html lang="en">
 <head>
     <script src="../Assets/js/protocol.mjs" type="module"></script>
+    <script type="module">
+        import { Protocol } from "../Assets/js/protocol.mjs";
+        if(Protocol.getUserDatos() == null) {
+            Protocol.enviarPagina("index");
+        }
+    </script>
     <link rel="stylesheet" href="../Assets/css/inventario.css" />
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <script type="module">
@@ -17,15 +23,25 @@
     <title>Inventario</title>
 </head>
 <body>
+    <script type="module" src="../Assets/js/Analizador.mjs"></script>
+    <script type="module" src="../modelo/Modelo.mjs"></script>
+    <script type="module" src="../modelo/Modelador.mjs"></script>
+    <script type="module" src="../modelo/usuario.mjs"></script>
+    <script type="module" src="../modelo/Evento.mjs"></script>
 
+    <script type="module" src="../controlador/DAO.mjs"></script>
+    <script type="module" src="../Assets/js/ErrorHandler.mjs"></script>
+    <script type="module" src="../Assets/js/Formulario.mjs"></script>
+
+    <script type="module" src="../Assets/js/inventario.mjs"></script>
     <div class="barraIzquierda">
         <h1>Búsqueda</h1>
 
-        <form action="busqueda">
+        <form id="formulario" action="inventario.html">
 
             <label>Código</label><br>
-            <input type="checkbox" name="confirmarCode" value=true>
-            <input type="text" id="cCode" name="nombre" placeholder="Buscar"><br>
+            <input type="checkbox" name="confirmarId" value=true>
+            <input type="text" id="cId" name="id" placeholder="Buscar"><br>
 
             <label>Nombre</label><br>
             <input type="checkbox" name="confirmarNombre" value=true>
@@ -33,7 +49,7 @@
 
             <label>Existencias</label><br>
             <input type="checkbox" name="confirmarExistencias" value=true>
-            <input type="text" id="cExistencias" name="nombre" placeholder="Buscar"><br>
+            <input type="text" id="cExistencias" name="existencias" placeholder="Buscar"><br>
 
             <button type="submit"><h2><i class='bx bx-search'></i></h2></button><!-- bx bx-search  son los iconos la lupa -->
 

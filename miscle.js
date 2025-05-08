@@ -205,6 +205,9 @@ app.post("/pages/panelControl.html", (req, res)=>{
 app.post("/pages/calendario.html", (req, res)=>{
     handleRequest(req, res);
 })
+app.post("/pages/inventario.html", (req, res)=>{
+    handleRequest(req, res);
+})
 const configura = new Encadenador();
 
 configura.then((callback)=>{

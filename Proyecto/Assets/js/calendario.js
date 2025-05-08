@@ -220,11 +220,24 @@ function renderCalendar(year, month) {
               return;
             }
 
-            DAO.queryEliminarPrimaria("calendario", "Evento", ID_DIA_SELECCIONADO, (res)=>{
-              consultarMes(year, month, (lista=>{
-                alert("Evento eliminado")
-                pintarDiasEventos(lista);    
-              })); // de 0- delante
+            DAO.queryEliminarPrimaria("calendario", "Evento", ID_DIA_SELECCIONADO, (datos)=>{
+              let datos2 = Protocol.getDatos(datos);
+              switch(datos2.status){
+                case Protocol.QUERY_SUCCESS:
+                  consultarMes(year, month, (lista=>{
+                    alert("Evento eliminado")
+                    pintarDiasEventos(lista);    
+                  })); // de 0- delante
+                  break;
+
+                case Protocol.QUERY_BLOCK:
+                  alert("No tiene permiso para eliminar eventos");
+                  break;
+                default:
+                  console.log("Error de eliminacion: ", datos2.status);
+                  ErrorHandler.handelarError(datos2.status);
+              }
+              
             });
 
           })
