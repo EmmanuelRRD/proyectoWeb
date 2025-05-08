@@ -171,14 +171,32 @@ function renderCalendar(year, month) {
             
             
             let modelo = Modelador.instanciar(Evento.name, data);
-            
-            requestAgregarModelo(modelo, (cod)=>{
-              consultarMes(year, month, (lista=>{
-                pintarDiasEventos(lista);    
-              })); // de 0- delante
-            });
-            
-            
+            //si no hay un dia seleccionado, agrega
+            //si si hay, actualizalo
+            if(ID_DIA_SELECCIONADO == -1){
+              requestAgregarModelo(modelo, (cod)=>{
+                consultarMes(year, month, (lista=>{
+                  pintarDiasEventos(lista);    
+                })); // de 0- delante
+              });  
+            }else {//verificar usuario y permiso
+              let usr = Protocol.getUserNombre(Protocol.getUserDatos());
+              nombreEncargadoDeEvento(ID_DIA_SELECCIONADO, (nom)=>{
+
+                if(nom != usr  && !Protocol.userAdmin(Protocol.getUserDatos())){
+                  alert("No puedes editar eventos de otros empleados.")
+                  return;
+                }
+
+                DAO.queryCambiarModelo("calendario", modelo, [ID_DIA_SELECCIONADO], (res)=>{
+                  consultarMes(year, month, (lista=>{
+                    pintarDiasEventos(lista);    
+                  })); // de 0- delante
+                })
+
+              })
+              
+            }
           }
         })
         form.accionLimpiar((ev)=>{
@@ -188,6 +206,28 @@ function renderCalendar(year, month) {
           frame.remove();
         })
         form.accionEliminar((ev)=>{
+          
+          if(ID_DIA_SELECCIONADO == -1){
+            alert("No hay nada para eliminar")
+            return;
+          }
+
+          let usr = Protocol.getUserNombre(Protocol.getUserDatos());
+          nombreEncargadoDeEvento(ID_DIA_SELECCIONADO, (nom)=>{
+
+            if(nom != usr  && !Protocol.userAdmin(Protocol.getUserDatos())){
+              alert("No puedes eliminar eventos de otros empleados.")
+              return;
+            }
+
+            DAO.queryEliminarPrimaria("calendario", "Evento", ID_DIA_SELECCIONADO, (res)=>{
+              consultarMes(year, month, (lista=>{
+                alert("Evento eliminado")
+                pintarDiasEventos(lista);    
+              })); // de 0- delante
+            });
+
+          })
           
         })
         ///DETECTAR SI EL USUARIO LE PICA FUERA DEL FORMULARIO
@@ -246,6 +286,33 @@ function renderCalendar(year, month) {
   consultarMes(year, month, (lista=>{
     pintarDiasEventos(lista);    
   })); // de 0- delante
+}
+
+function nombreEncargadoDeEvento(ID_Evento, call=(nombre)=>{}){
+  DAO.queryConsultar("calendario", "Evento", ["Nombre_Empleado"], ["Id"], [ID_Evento], (err, lista)=>{
+    
+    switch(err){
+  
+      case Protocol.QUERY_SUCCESS:
+        /**
+        *@type {Evento}
+        */
+        let ev = lista[0];
+        call(ev.Nombre_Empleado)
+        break;
+  
+      case Protocol.QUERY_BLOCK:
+  
+        console.log("CONSULTA BLOQUEADA: ", lista);
+        break;
+  
+      default:
+  
+        console.log("ERROR EN LA CONSULTA: ", err);
+        break;
+    }
+  })
+consultarMes
 }
 function getProximidad(fecha){
   let date = new Date(fecha)

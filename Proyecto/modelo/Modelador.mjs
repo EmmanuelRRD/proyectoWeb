@@ -78,7 +78,11 @@ export class Modelador {
         return Object.getOwnPropertyNames(modelo);
     }
     static getCamposNombre(nombre){
-        return Object.getOwnPropertyNames(new this.getNombre(nombre));
+        let clas = this.getNombre(nombre);
+        return Object.getOwnPropertyNames(new clas);
+    }
+    static getPrimariasDe(nombre){
+        return this.getNombre(nombre).primarias();
     }
     static instanciar(nombre, args){
         return new (this.getNombre(nombre))(...args);

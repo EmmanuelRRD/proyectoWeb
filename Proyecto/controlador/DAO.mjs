@@ -116,9 +116,53 @@ export class DAO {
         set = set.slice(-2);
         i = 0;
         filtroNombres.forEach(nombre=>{
-            ///NO ACABADO
+            let dato = filtroValores[i].toString();
+            if(typeof filtroValores[i] == 'string') dato= "'"+filtroValores[i]+"'";
+            where += nombre +"="+dato+" AND ";
+        })
+        where = where.slice(-5);
+        let final = sql;
+        final += set;
+        final += where;
+
+        Protocol.sendUpdate(filtroNombres, tablaNombre, pagina, (res)=>{
+            let datos = Protocol.getDatos(res);
+            if(Protocol.logCheck(datos.header)) return;
+            callback(datos);
+        })
+    }
+    /**
+     * 
+     * @param {string} pagina 
+     * @param {Modelo} modelo 
+     */
+    static queryCambiarModelo(pagina, modelo, primariasValores=[], call=(res)=>{}){
+        let idxs = Modelador.getPrimariasDe(modelo.constructor.name);
+        let noms = Modelador.getCamposNombre(modelo.constructor.name);
+        let primariasNombres = [];
+        idxs.forEach(idx=>{
+            primariasNombres.push(noms[idx]);
         })
         
+        this.queryCambiar(pagina, modelo.constructor.name, noms, modelo.getDatos(), primariasNombres, primariasValores, call)
+    }
+    static queryEliminarPrimaria(pagina, tabla, primaria, call=(res)=>{}){
+        let sql = "DELETE FROM " + tabla;
+        let where = " WHERE "
+        let idx = Modelador.getPrimariasDe(tabla)[0];
+        let noms = Modelador.getCamposNombre(tabla)[idx];
+        console.log(idx, noms);
+        
+        let dato = primaria;
+        if(typeof primaria == "string") dato = "'"+primaria+"'";
+        where += noms+"="+primaria;
+
+        let final = sql+where
+        Protocol.sendDelete(final, tabla, pagina, (res)=>{
+            let datos = Protocol.getDatos(res);
+            if(Protocol.logCheck(datos.header)) return;
+            call(datos);
+        })
     }
     /**
      * 

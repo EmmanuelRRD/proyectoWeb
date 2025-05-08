@@ -284,6 +284,6 @@ export class Formulario {
         this.btnCancelar.onclick = call;
     }
     accionEliminar(call=(ev)=>{return}){
-        this.btbEliminar.onclick = call;
+        this.btnEliminar.onclick = call;
     }
 }

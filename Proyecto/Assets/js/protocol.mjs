@@ -65,6 +65,18 @@ export class Protocol {
         }
         return JSON.stringify(obj);
     }
+    static paqueteUpdate(estado, modelo, result){
+        let obj = {
+            data:[this.UPDATE, estado, modelo, result]
+        }
+        return JSON.stringify(obj);
+    }
+    static paqueteDelete(estado, modelo, result){
+        let obj = {
+            data:[this.DELETE, estado, modelo, result]
+        }
+        return JSON.stringify(obj);
+    }
     /**
      * formatea respuestas a consultas SQL del servidor
      * @param {string} jsonQuery respuesta
@@ -157,6 +169,12 @@ export class Protocol {
     }
     static sendInsert(sql, objeto, pagina, resp=(res)=>{}){
         this.enviarRequestJSON({data:[this.INSERT, objeto, sql]}, pagina, resp);
+    }
+    static sendUpdate(sql, objeto, pagina, resp=(res)={}){
+        this.enviarRequestJSON({data:[this.UPDATE, objeto, sql]}, pagina, resp);
+    }
+    static sendDelete(sql, objeto, pagina, resp=(res)={}){
+        this.enviarRequestJSON({data:[this.UPDATE, objeto, sql]}, pagina, resp);
     }
     static pushQuery(sql, objeto){
         this.queryStack.push({data:[this.QUERY, objeto, sql]});

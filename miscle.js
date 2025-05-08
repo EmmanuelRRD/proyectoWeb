@@ -45,7 +45,7 @@ function handlePacket(packet, res){
             }
             //el usuario logeado si puede selectear
             ConexionBD.ejecutarRes(data, (err, result, fields)=>{
-                console.log(result);
+                
                 if(err){
                     console.log("error en la consulta: ", err)
                     errno = err.errno;
@@ -72,7 +72,40 @@ function handlePacket(packet, res){
                 res.send(Protocol.paqueteInsert(errno, object, result));
             })
             break;
-
+        
+        case Protocol.UPDATE:
+            console.log("UPDATE RECIBIDO: ", data);
+            if(!verificarPermiso(usuario.Escritura)){
+                console.log("escritura bloqueada a ", usuario);
+                res.send(Protocol.paqueteInsert(Protocol.QUERY_BLOCK, tablaNombre, null));
+                return;
+            }
+            ConexionBD.ejecutarRes(data, (err, result, fields)=>{
+                console.log(result);
+                if(err){
+                    console.log("error en la actualizacion: ", err)
+                    errno = err.errno;
+                }
+                res.send(Protocol.paqueteUpdate(errno, object, result));
+            })
+            break;
+        
+        case Protocol.DELETE:
+            console.log("DELETE RECIBIDO: ", data);
+            if(!verificarPermiso(usuario.Escritura)){
+                console.log("escritura bloqueada a ", usuario);
+                res.send(Protocol.paqueteInsert(Protocol.QUERY_BLOCK, tablaNombre, null));
+                return;
+            }
+            ConexionBD.ejecutarRes(data, (err, result, fields)=>{
+                console.log(result);
+                if(err){
+                    console.log("error en la delecion: ", err)
+                    errno = err.errno;
+                }
+                res.send(Protocol.paqueteDelete(errno, object, result));
+            })
+            break;
         case Protocol.QUERY_STACK: //repite el procesado de paquetes por cada instruccion del stack
             console.log("Multiples instrucciones: ", data);
             data.forEach(query=>{

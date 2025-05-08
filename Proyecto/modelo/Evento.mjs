@@ -27,7 +27,7 @@ export class Evento extends Modelo {
         return [true, true, true, true, true, true, true, true, true];
     }
     static primarias(){
-        return [true, false, false, false, false, false, false, false, false];
+        return [0];
     }
     static foraneas(){
         return [true, false, true, false, false, false, false, false, false];
