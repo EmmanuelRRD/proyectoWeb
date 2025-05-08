@@ -2,17 +2,76 @@
 <html lang="en">
 <head>
     <script src="../Assets/js/protocol.mjs" type="module"></script>
+    <link rel="stylesheet" href="../Assets/css/inventario.css" />
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <script type="module">
+        /*
         import { Protocol } from "../Assets/js/protocol.mjs";
         if(Protocol.getUserDatos() == null) {
             Protocol.enviarPagina("index");
         }
+        */
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inventario</title>
 </head>
 <body>
+
+    <div class="barraIzquierda">
+        <h1>Búsqueda</h1>
+
+        <form action="busqueda">
+
+            <label>Código</label><br>
+            <input type="checkbox" name="confirmarCode" value=true>
+            <input type="text" id="cCode" name="nombre" placeholder="Buscar"><br>
+
+            <label>Nombre</label><br>
+            <input type="checkbox" name="confirmarNombre" value=true>
+            <input type="text" id="cNombre" name="nombre" placeholder="Buscar"><br>
+
+            <label>Existencias</label><br>
+            <input type="checkbox" name="confirmarExistencias" value=true>
+            <input type="text" id="cExistencias" name="nombre" placeholder="Buscar"><br>
+
+            <button type="submit"><h2><i class='bx bx-search'></i></h2></button><!-- bx bx-search  son los iconos la lupa -->
+
+        </form>
+
+    </div>
+
+
+    <div class="derecho">   
+    <div class="material-equipo">
+        <button value=true class="button1"><h2>Material</h2></button>
+        <button value=false class="button2"><h2>Equipo</h2></button>
+    </div>
+    <div class="info">
+
+        <!-- Esta tabla de clase inventarios abajo bienen los iconos ya importados para implementarlos, ya solo seria mandarlos llamr asi-->
+        <table class="tablaInventarios" >
+            <tr>
+              <th>Código</th>
+              <th>Nombre</th>
+              <th>Disponible</th>
+              <th>Modificar</th>
+              <th>Eliminar</th>
+              <th>Agregar</th>
+            </tr>
+            <tr>
+              <th>Código</th>
+              <th>Nombre</th>
+              <th>Disponible</th>
+              <td><button class="btnTabla"><i class='bx bx-edit'></i></button></td> <!-- Icono editar -->
+              <td><button class="btnTabla"><i class='bx bx-trash'></button></td> <!-- Icono Eliminar -->
+                <td><button class="btnTabla"><i class='bx bx-plus'></button></td> <!-- Icono agregar -->
+
+            
+            </tr>
+          </table>
+    </div>
+</div> 
     
 </body>
 </html>

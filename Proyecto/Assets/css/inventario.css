@@ -1,0 +1,164 @@
+* {
+    margin: 0;
+    padding: 0;
+    font-family: "Poppins", sans-serif;
+    box-sizing: border-box;
+}
+
+body {
+    display: flex;
+    height: 100vh; /* Usa toda la altura de la ventana */
+    flex-direction: row; /* Alineación horizontal de los divs */
+    justify-content: flex-start; /* Asegura que los elementos estén alineados a la izquierda */
+    
+}
+
+/* Barra de búsqueda con altura completa */
+.barraIzquierda {
+    background-color: rgb(84, 189, 255);
+    color: aliceblue;
+    padding: 30px; /* Aumentamos el padding para hacerlo más espacioso */
+    border-radius: 0 0 10px 0;
+    width: 300px;
+    height: 100vh; /* Altura completa de la ventana */
+    position: sticky;
+    top: 0;
+    flex-shrink: 0;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1); /* Sombra sutil para darle profundidad */
+}
+
+/* Título */
+.barraIzquierda h1 {
+    text-align: center;
+    margin-top: 40px;
+    margin-bottom: 70px; /* Espaciado más amplio abajo del título */
+}
+
+/* Estilos para los labels */
+.barraIzquierda label {
+    margin-bottom: 10px;
+    font-weight: 600;
+    font-size: 16px;
+    color: aliceblue;
+}
+
+/* Estilos para los inputs */
+.barraIzquierda input[type="text"] {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 50px; /* Mayor separación entre inputs */
+    border: 2px solid #fff; /* Bordes más claros */
+    border-radius: 8px;
+    background-color: #f4f4f4; /* Fondo suave para los inputs */
+    color: #333;
+    font-size: 16px;
+}
+
+.barraIzquierda input[type="checkbox"] {
+    margin-right: 10px;
+}
+
+/* Botón de búsqueda */
+.barraIzquierda button {
+    background-color: yellowgreen;
+    color: white;
+    padding: 15px;
+    border: none;
+    border-radius: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    width: 100%;
+    text-align: center;
+    align-items: center;
+    font-size: 18px;
+}
+
+.barraIzquierda button:hover {
+    box-shadow: 4px 4px 10px  rgba(63, 84, 20, 0.5);
+}
+
+/* El div de la derecha */
+.derecho {
+    width: 100%;
+}
+
+/* Pestañas para Material y Equipo */
+.material-equipo {
+    width: 100%;
+    display: flex;
+    text-align: center;
+}
+
+.material-equipo .button1 {
+    height: 50%;
+    width: 50%;
+    text-align: center;
+    align-items: center;
+    padding: 12px 25px;
+    background-color: rgb(23, 180, 80);
+    color: white;
+    border: none;
+    border-radius: 0 0 10px 0px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.material-equipo .button2 {
+    height: 50%;
+    width: 50%;
+    text-align: center;
+    align-items: center;
+    padding: 12px 25px;
+    background-color: rgb(23, 180, 80);
+    color: white;
+    border: none;
+    border-radius: 0 0 10px 10px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.material-equipo button:hover {
+    background-color: rgb(16, 117, 53);
+}
+
+/* Tabla */
+.tablaInventarios {
+    margin: 30px;
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+    box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
+}
+
+.tablaInventarios th,
+.tablaInventarios td {
+    padding: 12px;
+    border: 1px solid #1e0f0f;
+    text-align: center;
+}
+
+.tablaInventarios th {
+    background-color: white;
+    color: black;
+}
+
+.tablaInventarios td button {
+    width: 100%;
+    height: 100%;
+    padding: 8px 15px;
+    font-size: 20px;
+    border: none;
+    background-color: none;
+    cursor: pointer;
+}
+
+.tablaInventarios td button:hover {
+    background-color: darkcyan;
+}
+
+/* Contenedor para la tabla y búsqueda */
+.info {
+    display: flex;
+    justify-content: center; /* Centra el contenido horizontalmente */
+}
+
