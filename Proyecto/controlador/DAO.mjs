@@ -101,6 +101,77 @@ export class DAO {
             callback(datos.status, lista);
         })
     }
+    static queryConsultarLike(pagina, tablaNombre, seleccionNombres=[], filtroNombres=[], filtroValores=[], callback=
+        /**
+         * 
+         * @param {number} err 
+         * @param {Modelo[]} instancias 
+         */
+        (err, instancias=[])=>{}){
+        let sql = "SELECT "
+
+        //arma el SELECT con los campos a seleccionar
+        if(seleccionNombres){
+            seleccionNombres.forEach(nom=>{
+                sql += nom+", ";
+            })
+            sql = sql.slice(0, sql.length-2); //mochale la ultima coma y espacio
+        }else sql += " *";
+        
+        sql += " FROM " + tablaNombre;
+
+        //arma el WHERE con los nombres y valores a filtrar
+        if(filtroNombres && filtroValores){
+            sql += " WHERE";
+            for(let i = 0; i < filtroNombres.length;i++){
+                if(typeof filtroValores[i] == 'string') sql+= " "+filtroNombres[i]+" LIKE '"+filtroValores[i]+"'";
+                else sql+= " "+filtroNombres[i]+" LIKE "+filtroValores[i];
+
+                sql += " AND"
+            }
+            sql = sql.slice(0, sql.length-4);
+        }
+        
+        //query y procesar la respuesta
+        Protocol.sendQuery(sql, tablaNombre, pagina, (res)=>{
+            let datos = Protocol.getQueryDatos(res);
+            if(Protocol.logCheck(datos.header)) return;
+            
+            let lista = [];
+            if(datos.status == Protocol.QUERY_SUCCESS){
+                datos.result.forEach(objeto=>{
+                    let clase = Modelador.getNombre(tablaNombre);
+                    let ins = null;
+                    try{
+                        ins = new clase();
+                    }catch(e){
+                        console.error("El modelo especificado no esta registrado: ", tablaNombre, Modelador.modelos.keys());
+                        return;
+                    }
+                    let tipos = clase.tipos();
+                    let campos = Modelador.getCampos(ins);
+                    let i = 0;
+
+                    for(const fld in objeto){
+                        i = campos.indexOf(fld); //actualiza el indice al del siguiente campo, puede que la consulta se brinque campos
+                        let tipo = tipos[i];
+                        let dato = objeto[fld];
+
+                        if(tipo == "boolean") ins[fld] = dato == 1;
+                        else if(tipo == "date"){
+                            ins[fld] = Analizador.formatearDate(new Date(dato));
+                            //console.log("date: ", ins[fld], dato);
+                            
+                        }
+                        else ins[fld] = dato;
+                    }
+                    
+                    lista.push(ins);
+                })
+            }
+            callback(datos.status, lista);
+        })
+    }
     static queryCambiar(pagina, tablaNombre, setNombres=[], setValores=[], filtroNombres=[], filtroValores=[], callback=(datos)=>{return}){
         let sql = "UPDATE " + tablaNombre;
         let set = " SET ";

@@ -16,6 +16,45 @@ let formHTML = document.getElementById("formulario");
  */
 let tabla = document.getElementsByClassName("tablaInventarios")[0];
 
+function consultarArticulosLike(f=(lista)=>{}){
+    let id = document.getElementById("cId").value;
+    let nombre = document.getElementById("cNombre").value;
+    let existencias = document.getElementById("cExistencias").value
+
+    DAO.queryConsultarLike("inventario", Articulo_Inventario.name, null, ["Id","Nombre", "Existencias"], [id+"%", nombre+"%", existencias+"%"], (err, lista)=>{
+        switch(err){
+            case Protocol.QUERY_SUCCESS:
+            f(lista);
+            break;
+            case Protocol.QUERY_BLOCK:
+                alert("No tiene permiso para consultar inventario");
+            default:
+                console.log("Error: ", err);
+                ErrorHandler.handelarError(err);
+                
+        }
+    })
+}
+
+///auto busqueda por tecleo
+
+document.getElementById("cId").addEventListener("keyup", (ev)=>{
+    consultarArticulosLike((lista)=>{
+        configurarActualizarTablaEspecifico(lista);
+    })
+});
+document.getElementById("cNombre").addEventListener("keyup", (ev)=>{
+    consultarArticulosLike((lista)=>{
+        configurarActualizarTablaEspecifico(lista);
+    })
+});
+document.getElementById("cExistencias").addEventListener("keyup", (ev)=>{
+    consultarArticulosLike((lista)=>{
+        configurarActualizarTablaEspecifico(lista);
+    })
+});
+
+
 function configurarActualizarTabla(){
     Formulario.resetearRegistros(tabla);
     consultarArticulos((lista)=>{
@@ -60,7 +99,51 @@ function configurarActualizarTabla(){
         });
     })
 }
+function configurarActualizarTablaEspecifico(lista){
+    Formulario.resetearRegistros(tabla);
+    console.log("mostrando: " + lista.length + " regis");
+        
+    Formulario.actualizarTablaCalls(tabla, lista, "Id",
+        /**
+         * 
+         * @param {MouseEvent} ev 
+         * @param {HTMLTableRowElement} row 
+         */
+        (ev, row)=>{
+            CODIGO_SELECCION = row.getAttribute("id");
+            //poner los campos en el formulario
+            
+            consultarArticuloId(CODIGO_SELECCION, (lista)=>{
+                if(lista.length ==0) return;
+
+                /**
+                 * @type {Articulo_Inventario}
+                 */
+                let mod = lista[0];
+
+                document.getElementById("cId").setAttribute("value", mod.Id);
+                document.getElementById("cNombre").setAttribute("value", mod.Nombre);
+                document.getElementById("cExistencias").setAttribute("value", mod.Existencias);
+                
+            })
+        }, 
+        /**
+         * 
+         * @param {MouseEvent} ev 
+         * @param {HTMLTableRowElement} row 
+         */
+        (ev, row)=>{
+            CODIGO_SELECCION = null;
+            eliminarArticuloId(""+row.getAttribute("id"), (res)=>{
+                alert("Articulo eliminado")
+                configurarActualizarTabla();
+            });
+            
+    });
+}
 configurarActualizarTabla();
+
+
 
 formHTML.addEventListener("submit", (ev)=>{
     console.log(ev.target);
