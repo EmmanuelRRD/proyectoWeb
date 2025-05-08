@@ -18,7 +18,7 @@ export class Evento extends Modelo {
         return ["INT", "DATE", "VARCHAR", "VARCHAR", "VARCHAR", "SMALLINT", "SMALLINT", "SMALLINT", "DATE"];
     }
     static tipos(){
-        return ["number", "string", "string", "string", "string", "number", "number", "number", "string"];
+        return ["number", "date", "string", "string", "string", "number", "number", "number", "date"];
     }
     static longitudes(){
         return [-1, -1, 32, 32, 32, -1, -1, -1, -1];

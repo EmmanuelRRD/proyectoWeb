@@ -66,7 +66,7 @@ export class Formulario {
         this.btnEnviar = null;
         this.btnLimpiar = null;
         this.btnCancelar = null;
-
+        this.btnEliminar = null;
         let i = 0;
         /**
          * popula los mapas del formulario, asigna el nombre del campo a su HTML, tipo de dato, tipo de componente, etiqueta, etc
@@ -164,11 +164,13 @@ export class Formulario {
         })
         this.btnEnviar = Formulario.crearBoton("btnEnviar", "green", "white", "Confirmar");
         this.btnLimpiar = Formulario.crearBoton("btnLimpiar", "white", "black", "Limpiar datos");
-        this.btnCancelar = Formulario.crearBoton("btnCancelar", "red", "white", "Cancelar");
+        this.btnCancelar = Formulario.crearBoton("btnCancelar", "white", "red", "Cancelar");
+        this.btnEliminar = Formulario.crearBoton("btnEliminar", "red", "white", "Eliminar");
 
         html.children.namedItem("botones").appendChild(this.btnEnviar);
         html.children.namedItem("botones").appendChild(this.btnLimpiar);
         html.children.namedItem("botones").appendChild(this.btnCancelar);
+        html.children.namedItem("botones").appendChild(this.btnEliminar);
     }
     /**
      * Genera un boton
@@ -207,6 +209,12 @@ export class Formulario {
         return f;
     }
     /**
+    * @returns {HTMLInputElement | HTMLSelectElement}
+    */
+    getInput(campoNombre){    
+        return this.campos.get(campoNombre).children.namedItem("input_"+campoNombre);
+    }
+    /**
      * recupera los datos de los campos del formulario, los organiza en un mapa
      * @returns {Map<string, string>}
      */
@@ -225,6 +233,16 @@ export class Formulario {
             o.set(nombre, info.value);
         })
         return o;
+    }
+    limpiar(){
+        this.campos.forEach((campo, nombre)=>{
+            /**
+             * @type {HTMLInputElement | HTMLSelectElement}
+             */
+            let input = campo.children.namedItem("input_"+nombre);
+            if(input instanceof HTMLInputElement) input.value = "";
+            else input.value = "null";
+        })
     }
     /**
      * obtiene los codigos de validacion de todos los campos del formulario, los organiza en un mapa
@@ -251,10 +269,11 @@ export class Formulario {
         let info = form.obtenerInformacion();
         //pon cada dato en un arreglo
         info.forEach((dato, nombre)=>{
-            o.push(Analizador.procesar(dato));
+            o.push(Analizador.procesar(dato, form.tipoDatos.get(nombre)));
         })
         return o;
     }
+   
     accionConfirmar(call=(ev)=>{return}){
         this.btnEnviar.onclick = call;
     }
@@ -263,5 +282,8 @@ export class Formulario {
     }
     accionCancelar(call=(ev)=>{return}){
         this.btnCancelar.onclick = call;
+    }
+    accionEliminar(call=(ev)=>{return}){
+        this.btbEliminar.onclick = call;
     }
 }

@@ -2,6 +2,7 @@ import { Modelo } from "../modelo/Modelo.mjs";
 import { Modelador } from "../modelo/Modelador.mjs";
 import { Usuario } from "../modelo/usuario.mjs";
 import { Protocol } from "../Assets/js/protocol.mjs";
+import { Analizador } from "../Assets/js/Analizador.mjs";
 
 export class DAO {
     constructor(){}
@@ -86,8 +87,12 @@ export class DAO {
                         let dato = objeto[fld];
 
                         if(tipo == "boolean") ins[fld] = dato == 1;
+                        else if(tipo == "date"){
+                            ins[fld] = Analizador.formatearDate(new Date(dato));
+                            //console.log("date: ", ins[fld], dato);
+                            
+                        }
                         else ins[fld] = dato;
-                        
                     }
                     
                     lista.push(ins);
@@ -95,6 +100,25 @@ export class DAO {
             }
             callback(datos.status, lista);
         })
+    }
+    static queryCambiar(pagina, tablaNombre, setNombres=[], setValores=[], filtroNombres=[], filtroValores=[], callback=(datos)=>{return}){
+        let sql = "UPDATE " + tablaNombre;
+        let set = " SET ";
+        let where = " WHERE ";
+        let i = 0;
+        setNombres.forEach(nom=>{//formatear parte del SET
+            let dato = setValores[i].toString();
+            if(typeof setValores[i] == 'string') dato= "'"+setValores[i]+"'";
+            set+= nom + "=" + dato+", ";
+
+            i++;
+        })
+        set = set.slice(-2);
+        i = 0;
+        filtroNombres.forEach(nombre=>{
+            ///NO ACABADO
+        })
+        
     }
     /**
      * 

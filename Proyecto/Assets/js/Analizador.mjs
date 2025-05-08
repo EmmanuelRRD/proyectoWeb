@@ -33,6 +33,16 @@ export class Analizador {
         }else throw new Error("Formato incorrecto", {code:this.INCORRECT_FORMAT});
     }
     /**
+    * 
+    * @param {Date} date 
+    * @returns {String}
+    */
+    static formatearDate(date){
+        return date.getFullYear()+
+            "-"+"0".concat(date.getMonth()+1).slice(-2)+
+            "-"+"0".concat(date.getDate()).slice(-2);
+    }
+    /**
      * Revisa un string en base al tipo de dato que debe ser, longitud maxima, no nulo, etc
      * @param {string} valor valor a validar
      * @param {string} tipoDato tipo de dato SQL del valor
@@ -50,6 +60,8 @@ export class Analizador {
                 else if (!this.probarRango(parseInt(valor), 32767, -32768)) return this.VALUE_OUT_OF_RANGE; 
                 break;
             case "INT":
+                console.log(valor);
+                
                 if(isNaN(parseInt(valor))) return this.NOT_INT;
                 break;
             case "FLOAT":
@@ -124,11 +136,18 @@ export class Analizador {
                 if(dato == null) return "NULL";
                 return parseFloat(dato);
             case "VARCHAR":
+                return dato.toString();
             case "CHAR":
+                return dato.toString();
             case "DATE":
                 if(dato == null) return "NULL";
+                let date = new Date(dato+"T00:00");
+                let str = this.formatearDate(date);
+                return  str;
+            default:
+                console.log("TIPO DE DATO DESCONOCIDO: ", dato);
+                
                 return dato;
-            default: return dato;
         }
     }
     /**

@@ -1,5 +1,6 @@
 import { DAO } from "../../controlador/DAO.mjs";
 import { Evento } from "../../modelo/Evento.mjs";
+import { Modelador } from "../../modelo/Modelador.mjs";
 import { Analizador } from "./Analizador.mjs";
 import { ErrorHandler } from "./ErrorHandler.mjs";
 import { Formulario } from "./Formulario.mjs";
@@ -13,26 +14,28 @@ const selectorAnio = document.getElementById("selectorAnio");
 const now = new Date();
 const year = now.getFullYear();
 const month = now.getMonth();
-const day = now.getDay();
+const day = now.getDate();
+
+let ID_DIA_SELECCIONADO = -1;
 
 /**
  * Catalogo de paquetes fotograficos, ID y nombre de paquete(?)
  * @type {Map<number, string>}
  */
 const paquetesFotograficos = new Map()
-.set(0, "Paquete 1");
+.set(1, "Paquete 1");
 /**
  * Catalogo de eventos, ID y tipo de evento
  * @type {Map<number, string>}
  */
 const tiposEvento = new Map()
-.set(0, "Evento 1");
+.set(1, "Evento 1");
 /**
  * Catalogo de modelos, ID y nombre
  * @type {Map<string, string>}
  */
 const modelos = new Map()
-.set(0, "Modelo 1");
+.set(1, "Modelo 1");
 
 
 console.log(now);
@@ -100,8 +103,11 @@ function renderCalendar(year, month) {
       const dia = this.dataset.day;
       const mes = parseInt(selectorMes.value);
       const anio = parseInt(selectorAnio.value);
+      const date = `${anio}-${mes + 1}-${dia}`;
+      console.log(`Fecha completa: ${date}`);
 
-      console.log(`Fecha completa: ${anio}-${mes + 1}-${dia}`);
+      
+
       let frame = document.createElement("iframe");
       frame.setAttribute("class", "popmenu");
       frame.src = "formularioEvento.html";
@@ -138,7 +144,7 @@ function renderCalendar(year, month) {
         })
         //hay que agregar los tipos de evento al form
         tiposEvento.forEach((evento, eventoID)=>{
-          form.agregarOpcionA("Tipo_Evento", evento, eventoID);
+          form.agregarOpcionA("Tipo_Evento", eventoID, evento);
         })
         
         //que hacer al picarle a confirmar
@@ -161,10 +167,29 @@ function renderCalendar(year, month) {
           }
           else {//si jalo el formulario
             alert("Evento agregado");
-            console.log(Formulario.extraer(form));
+            let data = Formulario.extraer(form);
+            
+            
+            let modelo = Modelador.instanciar(Evento.name, data);
+            
+            requestAgregarModelo(modelo, (cod)=>{
+              consultarMes(year, month, (lista=>{
+                pintarDiasEventos(lista);    
+              })); // de 0- delante
+            });
+            
+            
           }
         })
-
+        form.accionLimpiar((ev)=>{
+          form.limpiar();
+        })
+        form.accionCancelar((ev)=>{
+          frame.remove();
+        })
+        form.accionEliminar((ev)=>{
+          
+        })
         ///DETECTAR SI EL USUARIO LE PICA FUERA DEL FORMULARIO
 
         frame.contentWindow.document.addEventListener("click", () => {
@@ -174,10 +199,40 @@ function renderCalendar(year, month) {
             dayBtn.dataset.formClick = false;
           }
         });
+      
 
         frame.contentWindow.document.getElementById("form").addEventListener("click", () => {
           dayBtn.dataset.formClick = true;
         });
+
+        //si el dia ya tenia un evento, ponle los datos en el formler
+        //si no, entonces solo se autorrellenan las fechas con las de hoy
+        consultarFechaInicio(date, (lista)=>{
+          if(lista.length == 0){
+            ID_DIA_SELECCIONADO = -1;
+            let datler = Analizador.formatearDate(new Date(`${year}-${month+1}-${i}`));
+            console.log("Nuevoevento ",datler);
+            
+            form.getInput("Fecha_Inicio").value = datler;
+            form.getInput("Fecha_Fin").value = datler;
+            return;
+          }
+          /**
+          * @type {Evento}
+          */
+          let ev = lista[0];
+          //guardar la ID original para editar el evento y poderle cambiar la llave primaria
+          
+          ID_DIA_SELECCIONADO = ev.Id; 
+          ///los campos del form se llaman igual al modelo, se puede usar pa ponerle sus respectivos datos al form sencillon
+          form.campos.forEach((campoDiv, nombre)=>{
+            let input = form.getInput(nombre);
+            input.value = ev[nombre];
+            //console.log("Colocado: ", nombre, input, ev[nombre]);
+            
+          })
+        })
+
       };
 
       document.body.appendChild(frame);
@@ -188,9 +243,47 @@ function renderCalendar(year, month) {
 
   }
 
-  consultarMes(year, month + 1); // de 0- delante
+  consultarMes(year, month, (lista=>{
+    pintarDiasEventos(lista);    
+  })); // de 0- delante
 }
-
+function getProximidad(fecha){
+  let date = new Date(fecha)
+  let diffMilis = date.getTime()-now.getTime();
+  return new Date(diffMilis);
+  
+}
+function pintarDiasEventos(lista){
+  let diaMenor = 33;
+  lista.forEach(ev=>{
+    let dia = dias.get(obtenerInicioEvento(ev)+1);
+    let diff = getProximidad(ev.Fecha_Inicio+"T00:00");
+    console.log(diff,obtenerInicioEvento(ev)+1);
+    
+    if(diff.getTime() < 0) {
+      console.log("griso");
+      
+      pintarDia(dia, "gray");
+      return;
+    }
+    if(diff.getDate() > 2) pintarDia(dia, "yellow"); 
+    else if(diff.getDate() > 0){
+      pintarDia(dia, "orange");
+      diaMenor = Math.min(diff.getDate(), diaMenor);
+    }
+    else if(diff.getDate() == 0){
+      pintarDia(dia, "red");
+      diaMenor = Math.min(diff.getDate(), diaMenor);
+    }
+  })
+  if(diaMenor == 0){
+    
+    alert("Evento HOY ")
+  }else if(diaMenor < 32){
+    
+    alert("Evento próximo en " + diaMenor + " días")
+  }
+}
 selectorMes.value = month;  //La fecha de hoy
 selectorAnio.value = year;
 
@@ -217,13 +310,13 @@ ErrorHandler.registrarError(ErrorHandler.DUPLICATE_ENTRY, ()=>{
 })
 
 //sacalos eventos del calendario
-function consultarMes(anio, mes){
-  DAO.queryConsultar("calendario", "evento", null, ["YEAR(Fecha_Inicio)", "MONTH(Fecha_Inicio)"], [anio, mes], (err, lista)=>{
+function consultarMes(anio, mes, callback=(lista)=>{return}){
+  DAO.queryConsultar("calendario", "evento", null, ["YEAR(Fecha_Inicio)", "MONTH(Fecha_Inicio)"], [anio, mes+1], (err, lista)=>{
     switch(err){
   
       case Protocol.QUERY_SUCCESS:
   
-        console.log("CONSULTA EXITOSA: ", lista);
+        callback(lista);
         break;
   
       case Protocol.QUERY_BLOCK:
@@ -238,7 +331,28 @@ function consultarMes(anio, mes){
     }
   })
 }
-
+function consultarFechaInicio(fecha, callback=(lista)=>{return}){
+  DAO.queryConsultar("calendario", "evento", null, ["Fecha_Inicio"], [fecha], (err, lista)=>{
+    switch(err){
+  
+      case Protocol.QUERY_SUCCESS:
+  
+        console.log("CONSULTA EXITOSA: ", lista);
+        callback(lista);
+        break;
+  
+      case Protocol.QUERY_BLOCK:
+  
+        console.log("CONSULTA BLOQUEADA: ", lista);
+        break;
+  
+      default:
+  
+        console.log("ERROR EN LA CONSULTA: ", err);
+        break;
+    }
+  })
+}
 /**
  * consulta los usuarios actuales de la BD y enlista sus nombres en un arreglo
  */
@@ -268,15 +382,47 @@ function obtenerNombresEmpleados(call=
       }
   })
 }
+/**
+ * pinta el dia especificado
+ * @param {HTMLElement} dias
+ * @param {string} color 
+ */
+function pintarDia(dias, color){
+  dias.style.backgroundColor = color;
+}
+/**
+ * obtiene el dia de inicio del evento dado
+ * @param {Evento} ev
+ */
+function obtenerInicioEvento(ev){
+  
+   return new Date(ev.Fecha_Inicio).getDate();
+}
+/**
+* obtiene el dia de fin del evento dado
+ * @param {Evento} ev
+ */
+function obtenerFinEvento(ev){
+  return new Date(ev.Fecha_Fin).getDate();
+}
+
+
 function requestAgregarEvento(id, fecha_inicio, empleado, nombre_cliente, apellido_cliente, nombre_modelo, paquete_fotografico, tipo_evento, fecha_fin){
   let ev = new Evento(id, fecha_inicio, empleado, nombre_cliente, apellido_cliente, nombre_modelo, paquete_fotografico, tipo_evento, fecha_fin);
   DAO.queryAgregar(ev, "calendario", (datos)=>{
-      switch(datos.header){
+      
+      
+      switch(datos.status){
 
         case Protocol.QUERY_SUCCESS:
 
           console.log("INSERCION EXITOSA")
-          consultarMes(year, month);
+          consultarMes(year, month, (lista)=>{
+            lista.forEach(ev=>{
+              console.log(obtenerInicioEvento(ev));
+              
+            })
+          });
           break;
 
         case Protocol.QUERY_BLOCK:
@@ -290,7 +436,30 @@ function requestAgregarEvento(id, fecha_inicio, empleado, nombre_cliente, apelli
       }
   })
 }
+function requestAgregarModelo(modelo, call=(code)=>{return}){
+  
+  DAO.queryAgregar(modelo, "calendario", (datos)=>{
+    
+    switch(datos.status){
+
+      case Protocol.QUERY_SUCCESS:
+
+        console.log("INSERCION EXITOSA")
+        call(datos);
+        break;
+
+      case Protocol.QUERY_BLOCK:
+        alert("No tiene permitido insertar eventos");
+        console.log("INSERCION BLOQUEADA")
+        break;
+
+      default:
+        console.log("Error de instruccion: ", datos.status);
+        ErrorHandler.handelarError(datos.status);
+    }
+})
+}
 
 consultarMes(year, month);
 
-requestAgregarEvento(4, `${year}-${month}-${day}`, "Dios", "El Jersa", "Jerusalem", 1, 1, 1, `${year}-${month}-${day}`);
+requestAgregarEvento(7, `${year}-${month+1}-${day}`, "Dios", "El Jersa", "Jerusalem", 1, 1, 1, `${year}-${month+1}-${day}`);
