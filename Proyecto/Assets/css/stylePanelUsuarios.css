@@ -51,11 +51,6 @@ body {
     font-size: 16px;
 }
 
-.barraIzquierda input[type="checkbox"] {
-    margin-right: 10px;
-    margin-bottom: 10px;
-}
-
 .barraIzquierda button {
     background-color: yellowgreen;
     color: white;
