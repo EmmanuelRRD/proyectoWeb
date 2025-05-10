@@ -208,32 +208,30 @@ app.post("/pages/calendario.html", (req, res)=>{
 app.post("/pages/inventario.html", (req, res)=>{
     handleRequest(req, res);
 })
-const configura = new Encadenador();
 
-configura.then((callback)=>{
-    //ConexionBD.iniciar(callback);
-    Inicializador.iniciar(callback);
+Inicializador.iniciar2((err) => {
+    if(err) return;
+    ConexionBD.conectarRes("admin", "admin", true, () => {
 
-}).then((callback)=>{
-    ConexionBD.conectar("admin", "admin", true, callback);
-}).then((callback)=>{
-    let userio = new Usuario("Juanin", "12345");
-    userio.Es_Admin = true;
+        let userio = new Usuario("Juanin", "12345");
+        userio.Es_Admin = true;
+        
 
-    
-    DAO.agregarUsuario(userio, callback);
-    
-}).then(callback=>{
-    console.log("ENVIEN AYUDA")
-    callback();
+        DAO.agregarUsuario(userio, (res) => {
+            console.log("ENVIEN AYUDA")
+        });
+
+    });
 });
-configura.run();
+
 
 let dios = new Usuario("Dios", "9999");
 dios.Lectura=true;
 dios.Escritura=true;
     
-DAO.agregarUsuario(dios, ()=>{});
+DAO.agregarUsuario(dios, (err)=>{
+    if(err) console.log("ERRORE")
+});
 
 
 

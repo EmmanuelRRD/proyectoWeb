@@ -115,7 +115,7 @@ class DAO {
 
         new Encadenador().wipe()
         .then(callback=>{
-            this.conexion.ejecutar(sql, callback); //crea el usuario en mysql
+            this.conexion.ejecutarRes(sql, callback); //crea el usuario en mysql
         })
         .then(callback=>{
             this.agregarRes(modelo, (err, result, fields)=>{//agregalo a los usuarios de la BD pero con un procedimiento custom

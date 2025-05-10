@@ -63,7 +63,7 @@ class ConexionBD {
         enc.wipe();
         enc = null;
     }
-    conectar(usuario, contrasenia, multi=false, callback=()=>{}){
+    conectar(usuario, contrasenia, multi=false, callback=()=>{}, catcher=(err)=>{return}){
         try{
             
             this.conexion = mysql.createConnection({
@@ -74,13 +74,15 @@ class ConexionBD {
                 multipleStatements:true,
             })
         }catch(err){
+            
             console.error(err.errno+ ": Los datos de conexion son incorrectos: ", usuario, contrasenia);
             return;
         }
         this.conexion.connect((error)=>{
             if(error){
                 console.error("Conexion fallida:", usuario, contrasenia, error.code);
-                throw error;
+                catcher(error);
+                //throw error;
             }
             callback();
         })
@@ -95,11 +97,24 @@ class ConexionBD {
                 password:contrasenia,
                 multipleStatements:true,
             })
+
+            this.conexion.on('error', (err)=>{
+                console.log("Error al conectar");
+                if(err.code == "PROTOCOL_CONNECTION_LOST"){
+                    console.log("Conexion perdida, reconectando...");
+                    this.conexion.connect();
+                }else{
+                    return;
+                }
+                
+            })
         }catch(err){
             console.error(err.errno+ ": Los datos de conexion son incorrectos: ", usuario, contrasenia);
             return;
         }
-        this.conexion.connect(callback)
+        this.conexion.connect((err)=>{
+            callback(err);
+        })
     }
     desconectar(callback=(err)=>{}){
         this.conexion.end(callback);

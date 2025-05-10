@@ -14,7 +14,13 @@ class Inicializador {
         enc.wipe()
         .then(callback=>{
             console.log("Iniciando configuraciones...")
-            conexionBD.conectar("root", config.init.rootPass, true, callback)
+            conexionBD.conectarRes("root", config.init.rootPass, true, (err)=>{
+                if(err){
+                    console.log("ERROR DE CONEXION: ", err);
+                    return;
+                }
+                callback();
+            })
         })
         .then(callback=>{
 
@@ -32,7 +38,12 @@ class Inicializador {
                 scrip += linea;
             })
             rl.on("close", () => {
-                conexionBD.ejecutar(scrip, () => {
+                conexionBD.ejecutarRes(scrip, (err) => {
+                    if(err) {
+                        console.log("Error al cargar la BD", err);
+                        return;
+                    }
+                    
                     console.log("Base de datos cargada con exito");
                     callback();
                     //conexionBD.desconectar();
@@ -46,6 +57,48 @@ class Inicializador {
             DAO.agregarUsuario(admin, callback);
         }).run().then(()=>{
             console.log("administrador registrado exitosamente, considere actualizar los datos");
+        })
+    }
+    static iniciar2(after=(err)=>{}) {
+        
+        console.log("Iniciando configuraciones...")
+        conexionBD.conectarRes("root", config.init.rootPass, true, (err) => {
+            if (err) {
+                console.log("ERROR DE CONEXION: ", err);
+                return;
+            }
+            ///CARGAR EL SCRIPT
+            console.log("Iniciando Base de Datos... ");
+
+            let rl = readline.createInterface({
+                input: fs.createReadStream("Script/PhotoCalendar.sql"),
+                terminal: false,
+            })
+
+            let scrip = "";
+            rl.on("line", (linea) => {
+                scrip += linea;
+            })
+            rl.on("close", () => {
+                conexionBD.ejecutarRes(scrip, (err) => {
+                    if (err) {
+                        console.log("Error al cargar la BD", err);
+                        return;
+                    }
+
+                    console.log("Base de datos cargada con exito");
+
+                    console.log("Preparando cuenta de administrador...")
+                    let admin = new Usuario(config.init.adminUser, config.init.adminPass);
+                    admin.Es_Admin = true;
+                    DAO.agregarUsuario(admin, (err) => {
+                        console.log("administrador registrado exitosamente, considere actualizar los datos");
+                    });
+
+
+                });
+            });
+
         })
     }
 }

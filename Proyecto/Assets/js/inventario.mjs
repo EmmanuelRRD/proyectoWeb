@@ -8,19 +8,42 @@ import { Formulario } from "./Formulario.mjs";
 import { Protocol } from "./protocol.mjs";
 
 let CODIGO_SELECCION = null;
+/**
+ * @type {HTMLTableRowElement}
+ */
 let ROW_SELECCION = null;
 
 let TIPO_INVENTARIO = "material";
 
+/**
+ * 
+ * @param {string} codigo 
+ * @param {HTMLTableRowElement} row 
+ */
 function cambiarSeleccion(codigo, row){
     CODIGO_SELECCION = codigo;
     if(ROW_SELECCION != null){
         //colorsito de seleccion quitado
+        ROW_SELECCION.style.backgroundColor = "transparent"
+        ROW_SELECCION.onclick = (ev)=>{
+            cambiarSeleccion(null, null);
+        }
+        
     }
     if(row != null){
         //colorsito de seleccion ponido
+        row.onclick = (ev)=>{
+            console.log(ev.target);
+            if([...row.children].indexOf(ev.target) == -1){
+                return;
+            }
+            cambiarSeleccion(null, null);
+        }
+        row.style.backgroundColor = "rgb(100,200,255)"
     }
     ROW_SELECCION = row;
+    //
+    
 }
 document.getElementById("btnMaterial").addEventListener("click", (ev)=>{
     TIPO_INVENTARIO = "material";
@@ -121,10 +144,11 @@ function rellenarTabla(tabla, lista, consulta=(id, call=(lista)=>{})=>{}, elimin
                  * @type {Articulo_Inventario | Articulo_Equipo}
                  */
                 let mod = lista[0];
-
-                document.getElementById("cId").setAttribute("value", mod.Id);
-                document.getElementById("cNombre").setAttribute("value", mod.Nombre);
-                document.getElementById("cExistencias").setAttribute("value", mod.Existencias);
+                console.log("Modelo obtenido: ", mod);
+                
+                document.getElementById("cId").setAttribute("value", ""+mod.Id);
+                document.getElementById("cNombre").setAttribute("value", ""+mod.Nombre);
+                document.getElementById("cExistencias").setAttribute("value", ""+mod.Existencias);
                 
             })
         }, 
