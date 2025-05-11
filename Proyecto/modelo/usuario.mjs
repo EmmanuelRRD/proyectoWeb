@@ -2,13 +2,13 @@ import { Modelo } from './Modelo.mjs';
 import { Modelador } from './Modelador.mjs';
 
 export class Usuario extends Modelo {
-    constructor(nombre, contrasenia){
+    constructor(nombre, contrasenia, Lectura=false, Escritura=false, Es_Admin=false){
         super();
         this.Nombre = nombre;
         this.Pass = contrasenia;
-        this.Lectura = false;
-        this.Escritura = false;
-        this.Es_Admin = false;
+        this.Lectura = Lectura;
+        this.Escritura = Escritura;
+        this.Es_Admin = Es_Admin;
     }
     static tiposSQL(){
         return ["VARCHAR", "VARCHAR", "BOOLEAN", "BOOLEAN", "BOOLEAN"];
@@ -43,7 +43,7 @@ export class Usuario extends Modelo {
         return [];
     }
     getDatos(){
-        return[this.Nombre, "pass", this.Lectura, this.Escritura, this.Es_Admin]
+        return[this.Nombre, this.Pass, this.Lectura, this.Escritura, this.Es_Admin]
     }
 }
 //registrar el modelo en el manejador de modelos

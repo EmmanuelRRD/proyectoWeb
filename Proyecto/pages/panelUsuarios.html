@@ -6,6 +6,11 @@
     <link rel="stylesheet" href="../Assets/css/stylePanelUsuarios.css" />
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 
+    
+    <title>panel Usuarios</title>
+</head>
+<body>
+    <script type="module" src="../Assets/js/protocol.mjs"></script>
     <script type="module">
         
         import { Protocol } from "../Assets/js/protocol.mjs";
@@ -16,10 +21,7 @@
         }
         
     </script>
-    <title>panel Usuarios</title>
-</head>
-<body>
-    
+
     <div class="barraIzquierda">
         <h1>Búsqueda</h1>
 
@@ -29,7 +31,7 @@
             <input type="text" id="cNombre" name="nombre" placeholder="Buscar"><br>
 
             <label>Contraseña</label>
-            <input type="text" id="cPassword" name="password" placeholder="Buscar"><br>
+            <input type="text" id="cPass" name="password" placeholder="Buscar"><br>
 
             <label>Lectura</label>
             <input type="checkbox" id="cLectura" name="lectura" placeholder="Buscar"><br><br>
@@ -60,6 +62,9 @@
             <tr>
               <th>Usuario</th>
               <th>Contraseña</th>
+              <th>Lectura</th>
+              <th>Escritura</th>
+              <th>Administrador</th>
               <th>Modificar</th>
               <th>Eliminar</th>
             </tr>

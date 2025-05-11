@@ -19,12 +19,14 @@ document.getElementById("loginForm").addEventListener("submit", function(event) 
     //hacer el request de login y checar la respuesta del sv
     Protocol.enviarRequestJSON(obj, "index", (res)=>{
       let data = Protocol.getDatos(res);
-      if(Protocol.getLoginEstado(data)){
+      let log = Protocol.getLoginTipo(data);
+      if(log == Protocol.LOGIN_SUCCESS){
         Protocol.guardarUser(data);
         Protocol.enviar("panelControl.html");
-      }else{
+      }else if(log == Protocol.LOGIN_FAILURE){
         alert("Usuario o contraseña incorrectos, intente de nuevo");
-        return;
+      }else if(log == Protocol.LOGIN_DENIED){
+        alert("No tiene permiso para acceder a la BD");
       }
     })
     

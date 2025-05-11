@@ -256,6 +256,7 @@ export class DAO {
      */
     static agregarUsuario(modelo, pagina, callback=(res)=>{}){
         let sql = `CREATE USER IF NOT EXISTS '${modelo.Nombre}'@'localhost' IDENTIFIED WITH mysql_native_password BY '${modelo.Pass}'`;
+        sql += `; GRANT USAGE ON PhotoCalendar.* TO '${modelo.Nombre}'@'localhost'`;
         if(modelo.Lectura) sql += `; GRANT SELECT ON PhotoCalendar.* TO '${modelo.Nombre}'@'localhost'`;
         if(modelo.Escritura) sql+= `; GRANT INSERT, UPDATE, DELETE ON PhotoCalendar.* TO '${modelo.Nombre}'@'localhost'`;
         if(modelo.Es_Admin) sql += `; GRANT ALL PRIVILEGES ON PhotoCalendar.* TO '${modelo.Nombre}'@'localhost' WITH GRANT OPTION`;
@@ -277,25 +278,34 @@ export class DAO {
     static actualizarUsuario(modelo, original, pagina, callback=(res)=>{return}){
         let setNoms = Modelador.getCamposNombre("Usuario");
         let vals = modelo.getDatos();
-        this.queryCambiar(pagina, "mysql.user", setNoms, vals, ["Nombre"], [original.Nombre], (datos)=>{
-            let usr = `'${modelo.Nombre}'@'localhost'`;
-            let resetea = `REVOKE SELECT, DELETE, UPDATE, INSERT ON PhotoCalendar.* FROM ${usr}`;
-            let privs = "GRANT "
-            let privList = [];
-            if(modelo.Es_Admin){
-                privs = `GRANT ALL PRIVILEGES ON PhotoCalendar.* TO ${usr} WITH GRANT OPTION`;
-            }else{
-                
-                if(modelo.Escritura) privList.push("UPDATE", "DELETE", "INSERT");
-                if(modelo.Lectura) privList.push("SELECT");
-                privs += privList.join(", ") + ` ON PhotoCalendar.* TO  ${usr}`;
-            }
+        this.queryCambiar(pagina, Usuario.name, setNoms, vals, ["Nombre"], [original.Nombre], (datos) => {
+            let upatler = ` UPDATE mysql.user SET user='${modelo.Nombre}' WHERE user='${original.Nombre}'; FLUSH PRIVILEGES; `+
+            `ALTER USER '${modelo.Nombre}'@'localhost' IDENTIFIED BY '${modelo.Pass}'; FLUSH PRIVILEGES`
 
-            let final = resetea;
-            if(privs != "GRANT ") final+=";"+privs;
-            final+=";"+ "FLUSH PRIVILEGES";
+            Protocol.sendUpdate(upatler, Usuario.name, pagina, (res) => {
+                let usr = `'${modelo.Nombre}'@'localhost'`;
+                let resetea = `REVOKE IF EXISTS SELECT ON PhotoCalendar.* FROM ${usr}`;
+                resetea += `; REVOKE IF EXISTS DELETE ON PhotoCalendar.* FROM ${usr}`;
+                resetea += `; REVOKE IF EXISTS UPDATE ON PhotoCalendar.* FROM ${usr}`;
+                resetea += `; REVOKE IF EXISTS INSERT ON PhotoCalendar.* FROM ${usr}`;
+                let privs = "GRANT "
+                let privList = [];
+                if (modelo.Es_Admin) {
+                    privs = `GRANT ALL PRIVILEGES ON PhotoCalendar.* TO ${usr} WITH GRANT OPTION`;
+                } else {
 
-            Protocol.sendUpdate(final, "Usuario", pagina, callback);
+                    if (modelo.Escritura) privList.push("UPDATE", "DELETE", "INSERT");
+                    if (modelo.Lectura) privList.push("SELECT");
+                    if (modelo.Escritura || modelo.Lectura) privs += privList.join(", ") + ` ON PhotoCalendar.* TO ${usr}`;
+                }
+
+                let final = resetea;
+                if (privs != "GRANT ") final += ";" + privs;
+                final += ";" + " FLUSH PRIVILEGES";
+
+                Protocol.sendUpdate(final, "Usuario", pagina, callback);
+            })
+
         })
     }
     /**
@@ -308,7 +318,8 @@ export class DAO {
         let usr = `'${modelo.Nombre}'@'localhost'`;
         let sql = "DROP USER "+ usr;
         this.queryEliminarPrimaria(pagina, "Usuario", modelo.Nombre, (res)=>{
-            Protocol.sendQuery(sql, "Usuario", "calendar", callback);
+            console.log("DROPEO: ", sql)
+            Protocol.sendDelete(sql, "Usuario", pagina, callback);
         })
     }
 }

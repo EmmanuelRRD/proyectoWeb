@@ -440,6 +440,7 @@ export class Formulario {
              * @param {HTMLTableRowElement} row 
              */
             (ev, row)=>{
+                //console.log("EDIT: ", consulta);
                 Selector.cambiarSeleccion(row.getAttribute("id"), row);
                 //poner los campos en el formulario
                 
@@ -455,7 +456,16 @@ export class Formulario {
                     for(const field in mod){
                         let elem = document.getElementById("c"+field);
                         if(elem == null) continue;
-                        elem.setAttribute("value", ""+mod[field]);
+                        let attrib = "value";
+                        if(elem instanceof HTMLInputElement && elem.type == "checkbox"){
+                            elem["checked"] = mod[field];
+                            
+                        }else if(elem instanceof HTMLInputElement) {
+                            elem["value"] = mod[field];
+                        }
+                        //elem.setAttribute("value", ""+mod[field]);
+                        
+                        
                     }
                 })
             }, 
@@ -466,8 +476,11 @@ export class Formulario {
              */
             (ev, row)=>{
                 Selector.cambiarSeleccion(null, null);
+                
+                console.log("ELIM: ", eliminacion);
                 eliminacion(""+row.getAttribute("id"), (res)=>{
-                    alert("Registro eliminado")
+                    
+                    alert("Registro eliminado: ", res)
                     this.refrescarTabla(tabla, idNombre, consultaGlobal, consulta, eliminacion);
                 });
                 
@@ -484,8 +497,11 @@ export class Formulario {
      */
     static refrescarTabla(tabla, idNombre, consultaGlobal=(l=(call)=>{}), consulta=(id, l=(lista)=>{}), eliminacion=(id, l=(datos)=>{})){
         Formulario.resetearRegistros(tabla);
+        console.log("refresca con ", consultaGlobal, consulta, eliminacion);
+        
         consultaGlobal((lista)=>{
-            this.rellenarTabla(tabla, lista, idNombre, consulta, eliminacion);
+            this.rellenarTabla(tabla, lista, idNombre, consultaGlobal, consulta, eliminacion);
         })
     }
+    
 }

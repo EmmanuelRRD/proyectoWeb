@@ -16,18 +16,49 @@ let formHTML = document.getElementById("formulario");
  */
 let tabla = document.getElementById("tablaUsuarios");
 
+document.getElementById("cNombre").addEventListener("keyup", (ev)=>{
+    consultarTablaLike(Usuario.name, (lista)=>{
+        Formulario.rellenarTabla(tabla, lista, "Nombre", consultarGlobal, consultarUsuarioId, eliminarUsuarioId);
+    })
+})
+document.getElementById("cPass").addEventListener("keyup", (ev)=>{
+    consultarTablaLike(Usuario.name, (lista)=>{
+        Formulario.rellenarTabla(tabla, lista, "Nombre", consultarGlobal, consultarUsuarioId, eliminarUsuarioId);
+    })
+})
+document.getElementById("cEscritura").addEventListener("mouseup", (ev)=>{
+    consultarTablaLike(Usuario.name, (lista)=>{
+        Formulario.rellenarTabla(tabla, lista, "Nombre", consultarGlobal, consultarUsuarioId, eliminarUsuarioId);
+    })
+})
+document.getElementById("cLectura").addEventListener("mouseup", (ev)=>{
+    consultarTablaLike(Usuario.name, (lista)=>{
+        Formulario.rellenarTabla(tabla, lista, "Nombre", consultarGlobal, consultarUsuarioId, eliminarUsuarioId);
+    })
+})
+
 //CONSULTA
 function consultarTablaLike(tabla, f=(lista)=>{}) {
     
     let nombre = document.getElementById("cNombre").value;
-    let password = document.getElementById("cPassword").value
-    let lectura = document.getElementById("cLectura").value;
-    let escritura = document.getElementById("cEscritura").value;
+    let password = document.getElementById("cPass").value
+    let lectura = (document.getElementById("cLectura").checked ? 1 : 0);
+    let escritura = (document.getElementById("cLectura").checked ? 1 : 0);
 
-    DAO.queryConsultarLike("panelUsuarios", tabla, null, ["Nombre", "Pass", "Lectura", "Escritura"], [nombre+"%", password+"%", lectura+"%", escritura+"%"], (err, lista)=>{
+    //console.log(nombre);
+    
+    DAO.queryConsultarLike("panelUsuarios", tabla, null, ["Nombre", "Pass"], [nombre+"%", password+"%"], (err, lista)=>{
         switch(err){
             case Protocol.QUERY_SUCCESS:
-            f(lista);
+
+            let o = [];
+            for(const mod of lista){
+                if(!mod.Es_Admin) o.push(mod);
+                else console.log("filtrado ", mod);
+            }
+            
+            
+            f(o);
             break;
             case Protocol.QUERY_BLOCK:
                 alert("No tiene permiso para consultar usuarios");
@@ -38,6 +69,7 @@ function consultarTablaLike(tabla, f=(lista)=>{}) {
         }
     })
 }
+
 /**
  * 
  * @param {string} tabla 
@@ -134,7 +166,13 @@ function eliminarTablaId(alertTipo, tabla, id, l=(datos)=>{}){
 }
 
 function eliminarUsuarioId(id, l=(datos)=>{}){
-    eliminarTablaId("usuarios", Usuario.name, id, l);
+    consultarUsuarioId(id, (list)=>{
+        if(list.length == 0) return;
+
+        let mod = list[0];
+        DAO.eliminarUsuario(mod, "panelUsuarios", l)
+    })
+    //eliminarTablaId("usuarios", Usuario.name, id, l);
 }
 
 ///FUNCIONES DE CAMBIO
@@ -167,6 +205,8 @@ function modificarTablaId(tabla, alertTipo, modelo, id, call=(datos)=>{}){
 }
 
 ///LOGICA
+
+Formulario.refrescarTabla(tabla, "Nombre", consultarNoAdmin, consultarUsuarioId, eliminarUsuarioId);
 
 formHTML.addEventListener("submit", (ev)=>{
     
@@ -206,6 +246,7 @@ formHTML.addEventListener("submit", (ev)=>{
         console.log("si");
         
         let data = Formulario.extraer(form);
+        
         let modelo = Modelador.instanciar(Usuario.name, data);
         modelo["Es_Admin"] = false;
         console.log(data);
@@ -214,17 +255,20 @@ formHTML.addEventListener("submit", (ev)=>{
             
             DAO.agregarUsuario(modelo, "panelUsuarios", (res)=>{
                 alert("Registro agregado")
+                Formulario.refrescarTabla(tabla, "Nombre", consultarNoAdmin, consultarUsuarioId, eliminarUsuarioId);
             })
         }else{
             consultarUsuarioId(Selector.codigo, (lista)=>{
                 if(lista.length < 1) return;
                 let og = lista[0];
 
+                
                 DAO.actualizarUsuario(modelo, og, "panelUsuarios", (res)=>{
                       alert("Registro modificado");      
+                      Formulario.refrescarTabla(tabla, "Nombre", consultarNoAdmin, consultarUsuarioId, eliminarUsuarioId);
                 })
             })
         }
-        Formulario.refrescarTabla(tabla, "Nombre", consultarNoAdmin, eliminarUsuarioId, consultarUsuarioId);
+        
     }
 })

@@ -153,33 +153,48 @@ app.post("/pages/index.html", (req, res)=>{
         conexionBD.conectarRes(user, pass, false, (err)=>{
             if(err){
                 console.log(err.code);
-                let datos = Protocol.paqueteLogin(null, 1);
+                let datos = Protocol.paqueteLogin(null, Protocol.LOGIN_FAILURE);
                 console.log(datos);
                 res.send(datos);
 
                 callback();
-            }else{
-                ConexionBD.ejecutar("USE PhotoCalendar");   
-                //fuaa chaval hay que mandarle los permisos al usuario AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-                DAO.consultar("usuario", null, ['Nombre', 'Pass'], [user, pass], (err, ins)=>{
-                    if(err){
-                        console.log("valio pilin", err);
-                    }else{
-                        console.log(ins[0]);
-                        let datos = Protocol.paqueteLogin(ins[0], 0);
-                        console.log(datos);
+            } else {
+                ConexionBD.ejecutarRes("USE PhotoCalendar", (err) => {
+                    if (err) {
+                        console.log("No tiene permitido utilizar la BD: ", err);
+                        let datos = Protocol.paqueteLogin(null, Protocol.LOGIN_DENIED);
                         res.send(datos);
-                        console.log("conexion exitosa");
-                        usuario = ins[0];
+                        return;
                     }
+                    //fuaa chaval hay que mandarle los permisos al usuario AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+                    DAO.consultar("usuario", null, ['Nombre', 'Pass'], [user, pass], (err, ins) => {
+                        if (err) {
+                            console.log("valio pilin", err);
+                        } else {
+                            console.log(ins[0]);
+                            ins[0].Pass = "pass";
+                            let datos = Protocol.paqueteLogin(ins[0], 0);
+                            console.log(datos);
+                            res.send(datos);
+                            console.log("conexion exitosa");
+                            usuario = ins[0];
+                        }
 
-                    callback();
+                        callback();
+                    });
+
                 });
+
             }
         })
     }).run();
 })
 app.post("/pages/panelControl.html", (req, res)=>{
+    if(usuario == null){
+        res.send(Protocol.paqueteLogback());
+        return;
+    }
+
     const { data } = req.body;
     console.log("sasca: ", data);
     if(data[0] == Protocol.LOGOUT){
@@ -208,9 +223,17 @@ app.post("/pages/calendario.html", (req, res)=>{
 app.post("/pages/inventario.html", (req, res)=>{
     handleRequest(req, res);
 })
+app.get("/pages/panelUsuarios.html", (req, res)=>{
+    
+})
 app.post("/pages/panelUsuarios.html", (req, res)=>{
+    if(usuario == null || !usuario.Es_Admin){
+        res.send(Protocol.paqueteLogback());
+        return;
+    }
     handleRequest(req, res);
 })
+
 
 Inicializador.iniciar2((err) => {
     if(err) return;

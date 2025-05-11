@@ -4,6 +4,7 @@
 export class Protocol {
     static LOGIN = 0;
     static LOGOUT = 1;
+    static LOGERR = 8;
 
     static QUERY = 2;
     static QUERY_STACK = 3;
@@ -16,6 +17,7 @@ export class Protocol {
 
     static LOGIN_SUCCESS = 0;
     static LOGIN_FAILURE = 1;
+    static LOGIN_DENIED = 2;
 
     static LOGOUT_SUCCESS = 0;
     static LOGOUT_FAILURE = 1;
@@ -96,6 +98,9 @@ export class Protocol {
     static getLoginEstado(datos){
         return datos[1] == this.LOGIN_SUCCESS;
     }
+    static getLoginTipo(datos){
+        return datos[1];
+    }
     static guardarUser(datos){
         localStorage.setItem("user", JSON.stringify(datos));
     }
@@ -130,7 +135,7 @@ export class Protocol {
             }
         };
         let str = JSON.stringify(datos);
-        xhttp.open("POST", "/pages/"+destino+".html", false);
+        xhttp.open("POST", "/pages/"+destino+".html", true);
         xhttp.setRequestHeader("Content-Type", "application/json");
         xhttp.send(str);
     }
