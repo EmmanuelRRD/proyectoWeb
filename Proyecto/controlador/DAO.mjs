@@ -28,6 +28,7 @@ export class DAO {
     static sqlAgregar(modelo){
         let sql = "INSERT INTO " + modelo.constructor.name + " VALUES(";
         sql += modelo.getDatosSQL().toString()+")";
+        return sql;
     }
     /**
      * Realiza una consulta con los parametros especificados, instancia los resultados y los ofrece en un arreglo dentro del callback
@@ -258,9 +259,12 @@ export class DAO {
         if(modelo.Escritura) sql+= `; GRANT INSERT, UPDATE, DELETE ON PhotoCalendar.* TO '${modelo.Nombre}'@'localhost'`;
         if(modelo.Es_Admin) sql += `; GRANT ALL PRIVILEGES ON PhotoCalendar.* TO '${modelo.Nombre}'@'localhost' WITH GRANT OPTION`;
         sql += "; FLUSH PRIVILEGES";
-
-        Protocol.pushQuery(sql, Usuario.name).pushQuery(DAO.sqlAgregar(modelo), Usuario.name);
-        Protocol.sendStack(pagina, callback);
+        sql += ";" + DAO.sqlAgregar(modelo);
+        //Protocol.pushQuery(sql, Usuario.name).pushQuery(DAO.sqlAgregar(modelo), Usuario.name);
+        Protocol.sendInsert(sql, Usuario.name, pagina, (res)=>{
+            let datos = Protocol.getQueryDatos(res)
+            callback(datos);
+        })
     }
     /**
      * 

@@ -38,6 +38,14 @@ function consultarTablaLike(tabla, f=(lista)=>{}) {
         }
     })
 }
+/**
+ * 
+ * @param {string} tabla 
+ * @param {string[] | null} selecNombres 
+ * @param {string[] | null} filtroNombres 
+ * @param {any[] | null} filtroValores 
+ * @param {(lista: Usuario[])=>{}} l 
+ */
 function consultarTabla(tabla, selecNombres=[], filtroNombres=[], filtroValores=[], l=(lista)=>{}){
     DAO.queryConsultar("panelUsuarios", tabla, selecNombres, filtroNombres, filtroValores, (err, lista)=>{
         switch (err) {
@@ -61,6 +69,20 @@ function consultarTabla(tabla, selecNombres=[], filtroNombres=[], filtroValores=
 
 function consultarGlobal(l=(lista)=>{}){
     consultarTabla(Usuario.name, null, null, null, l);
+}
+/**
+ * 
+ * @param {(lista: Usuario[])=>{}} l 
+ */
+function consultarNoAdmin(l=(lista)=>{}){
+    consultarTabla(Usuario.name, null, null, null, (lista)=>{
+        let o = [];
+        for(const mod of lista){
+            if(!mod.Es_Admin) o.push(mod);
+        }
+        l(o);
+    });
+ 
 }
 
 function consultarId(tabla, idNombre, id, l=(lista)=>{}){
@@ -203,6 +225,6 @@ formHTML.addEventListener("submit", (ev)=>{
                 })
             })
         }
-        Formulario.refrescarTabla(tabla, "Nombre", consultarGlobal, consultarUsuarioId, eliminarUsuarioId);
+        Formulario.refrescarTabla(tabla, "Nombre", consultarNoAdmin, consultarUsuarioId, eliminarUsuarioId);
     }
 })
