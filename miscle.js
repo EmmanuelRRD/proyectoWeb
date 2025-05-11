@@ -11,7 +11,7 @@ const path = require('path');
 const conexionBD = require("./ConexionBD/ConexionBD");
 
 import { Protocol } from "./Proyecto/Assets/js/protocol.mjs";
-//cargar cada mendigo modelo porque si no no se agregan al modelador :>
+
 import { Usuario } from "./Proyecto/modelo/usuario.mjs";
 import { Evento } from "./Proyecto/modelo/Evento.mjs";
 import { Modelador } from "./Proyecto/modelo/Modelador.mjs";
@@ -206,6 +206,9 @@ app.post("/pages/calendario.html", (req, res)=>{
     handleRequest(req, res);
 })
 app.post("/pages/inventario.html", (req, res)=>{
+    handleRequest(req, res);
+})
+app.post("/pages/panelUsuarios.html", (req, res)=>{
     handleRequest(req, res);
 })
 

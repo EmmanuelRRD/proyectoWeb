@@ -10,14 +10,6 @@
     </script>
     <link rel="stylesheet" href="../Assets/css/inventario.css" />
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    <script type="module">
-        
-        import { Protocol } from "../Assets/js/protocol.mjs";
-        if(Protocol.getUserDatos() == null) {
-            Protocol.enviarPagina("index");
-        }
-        
-    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inventario</title>
@@ -33,6 +25,7 @@
     <script type="module" src="../Assets/js/ErrorHandler.mjs"></script>
     <script type="module" src="../Assets/js/Formulario.mjs"></script>
 
+    <script type="module" src="../Assets/js/Seleccionador.mjs"></script>
     <script type="module" src="../Assets/js/inventario.mjs"></script>
     <div class="barraIzquierda">
         <h1>Búsqueda</h1>

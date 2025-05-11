@@ -6,6 +6,7 @@ import { Analizador } from "./Analizador.mjs";
 import { ErrorHandler } from "./ErrorHandler.mjs";
 import { Formulario } from "./Formulario.mjs";
 import { Protocol } from "./protocol.mjs";
+import { Selector } from "./Seleccionador.mjs";
 
 let CODIGO_SELECCION = null;
 /**
@@ -47,7 +48,7 @@ function cambiarSeleccion(codigo, row){
 }
 document.getElementById("btnMaterial").addEventListener("click", (ev)=>{
     TIPO_INVENTARIO = "material";
-    cambiarSeleccion(null, null);
+    Selector.cambiarSeleccion(null, null);
     document.getElementById("btnMaterial").style.backgroundColor = "cyan";
     document.getElementById("btnEquipo").style.backgroundColor = "rgb(23, 180, 80)";
     
@@ -56,7 +57,7 @@ document.getElementById("btnMaterial").addEventListener("click", (ev)=>{
 
 document.getElementById("btnEquipo").addEventListener("click", (ev)=>{
     TIPO_INVENTARIO = "equipo";
-    cambiarSeleccion(null, null);
+    Selector.cambiarSeleccion(null, null);
     document.getElementById("btnEquipo").style.backgroundColor = "cyan";
     document.getElementById("btnMaterial").style.backgroundColor = "rgb(23, 180, 80)";
 
@@ -134,10 +135,10 @@ function rellenarTabla(tabla, lista, consulta=(id, call=(lista)=>{})=>{}, elimin
          * @param {HTMLTableRowElement} row 
          */
         (ev, row)=>{
-            cambiarSeleccion(row.getAttribute("id"), row);
+            Selector.cambiarSeleccion(row.getAttribute("id"), row);
             //poner los campos en el formulario
             
-            consulta(CODIGO_SELECCION, (lista)=>{
+            consulta(Selector.codigo, (lista)=>{
                 if(lista.length ==0) return;
 
                 /**
@@ -158,7 +159,7 @@ function rellenarTabla(tabla, lista, consulta=(id, call=(lista)=>{})=>{}, elimin
          * @param {HTMLTableRowElement} row 
          */
         (ev, row)=>{
-            cambiarSeleccion(null, null);
+            Selector.cambiarSeleccion(null, null);
             eliminacion(""+row.getAttribute("id"), (res)=>{
                 alert("Registro eliminado")
                 configurarActualizarTabla();
@@ -250,14 +251,14 @@ formHTML.addEventListener("submit", (ev)=>{
         let modelo = Modelador.instanciar(tipo.name, data);
         
         console.log(modelo);
-        if(CODIGO_SELECCION == null){
+        if(Selector.codigo == null){
             agrega(modelo, (datos)=>{
                 //actualizar la tabla
                 alert("Registro agregado")
                 configurarActualizarTabla();
             })
         }else {
-            modifica(modelo, CODIGO_SELECCION, (datos)=>{
+            modifica(modelo, Selector.codigo, (datos)=>{
                 alert("Registro modificado");
                 configurarActualizarTabla();
             })
@@ -298,6 +299,7 @@ function modificarTablaId(tabla, alertTipo, modelo, id, call=(datos)=>{}){
                 default:
                     console.log("Error de instruccion: ", res.status);
                     ErrorHandler.handelarError(res.status);
+                    break;
             }
         })
     })
@@ -336,7 +338,7 @@ function consultarTabla(tabla, selecNombres=[], filtroNombres=[], filtroValores=
 function consultarGlobal(tabla, l=(lista)=>{}){
     consultarTabla(tabla, null, null, null, l);
 }
-function consultarId(tabla, idNombre, id, l=(lista)=>{}){
+export function consultarId(tabla, idNombre, id, l=(lista)=>{}){
     consultarTabla(tabla, null, [idNombre], [id], l);
 }
 //FUNCION DE AGREGAR

@@ -22,6 +22,14 @@ export class DAO {
         } );
     }
     /**
+     * 
+     * @param {Modelo} modelo 
+     */
+    static sqlAgregar(modelo){
+        let sql = "INSERT INTO " + modelo.constructor.name + " VALUES(";
+        sql += modelo.getDatosSQL().toString()+")";
+    }
+    /**
      * Realiza una consulta con los parametros especificados, instancia los resultados y los ofrece en un arreglo dentro del callback
      * @param {string} pagina de que pagina se origina el request
      * @param {string} tablaNombre nombre de la tabla a consultar
@@ -251,7 +259,7 @@ export class DAO {
         if(modelo.Es_Admin) sql += `; GRANT ALL PRIVILEGES ON PhotoCalendar.* TO '${modelo.Nombre}'@'localhost' WITH GRANT OPTION`;
         sql += "; FLUSH PRIVILEGES";
 
-        Protocol.pushQuery(sql, "Usuario").pushQuery(DAO.queryAgregar(modelo), "Usuario");
+        Protocol.pushQuery(sql, Usuario.name).pushQuery(DAO.sqlAgregar(modelo), Usuario.name);
         Protocol.sendStack(pagina, callback);
     }
     /**
@@ -264,7 +272,7 @@ export class DAO {
     static actualizarUsuario(modelo, original, pagina, callback=(res)=>{return}){
         let setNoms = Modelador.getCamposNombre("Usuario");
         let vals = modelo.getDatos();
-        this.queryCambiar("calendario", "mysql.user", setNoms, vals, ["Nombre"], [original.Nombre], (datos)=>{
+        this.queryCambiar(pagina, "mysql.user", setNoms, vals, ["Nombre"], [original.Nombre], (datos)=>{
             let usr = `'${modelo.Nombre}'@'localhost'`;
             let resetea = `REVOKE SELECT, DELETE, UPDATE, INSERT ON PhotoCalendar.* FROM ${usr}`;
             let privs = "GRANT "

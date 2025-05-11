@@ -11,6 +11,8 @@
         import { Protocol } from "../Assets/js/protocol.mjs";
         if(Protocol.getUserDatos() == null) {
             Protocol.enviarPagina("index");
+        }else if(!Protocol.userAdmin(Protocol.getUserDatos())){
+            Protocol.enviarPagina("index");
         }
         
     </script>
@@ -21,18 +23,21 @@
     <div class="barraIzquierda">
         <h1>Búsqueda</h1>
 
-        <form action="busqueda">
-
-            <label>Código</label>
-            <input type="text" id="cCode" name="nombre" placeholder="Buscar"><br>
+        <form id="formulario" action="panelUsuarios.html">
 
             <label>Nombre</label>
             <input type="text" id="cNombre" name="nombre" placeholder="Buscar"><br>
 
-            <label>Existencias</label>
-            <input type="text" id="cExistencias" name="nombre" placeholder="Buscar"><br>
+            <label>Contraseña</label>
+            <input type="text" id="cPassword" name="password" placeholder="Buscar"><br>
 
-            <button type="submit"><i class='bx bx-search'></i></button><!-- bx bx-search  son los iconos la lupa -->
+            <label>Lectura</label>
+            <input type="checkbox" id="cLectura" name="lectura" placeholder="Buscar"><br><br>
+            
+            <label>Escritura</label>
+            <input type="checkbox" id="cEscritura" name="escritura" placeholder="Buscar"><br><br>
+
+            <button type="submit"><i class='bx bx-search'></i>Agregar</button><!-- bx bx-search  son los iconos la lupa -->
 
         </form>
 
@@ -51,7 +56,7 @@
     <div class="info">
 
         <!-- Esta tabla de clase inventarios abajo bienen los iconos ya importados para implementarlos, ya solo seria mandarlos llamr asi-->
-        <table class="tablaInventarios" >
+        <table id="tablaUsuarios" class="tablaInventarios" >
             <tr>
               <th>Usuario</th>
               <th>Contraseña</th>
@@ -70,5 +75,6 @@
     </div>
 </div> 
 
+<script type="module" src="../Assets/js/PanelUsuario.mjs"></script>
 </body>
 </html>

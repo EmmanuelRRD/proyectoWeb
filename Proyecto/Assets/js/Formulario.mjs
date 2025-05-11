@@ -1,6 +1,7 @@
 import { Modelador } from "../../modelo/Modelador.mjs";
 import { Modelo } from "../../modelo/Modelo.mjs";
 import { Analizador } from "./Analizador.mjs";
+import { Selector } from "./Seleccionador.mjs";
 
 /**
  * Clase para crear formularios automaticamente.
@@ -132,6 +133,7 @@ export class Formulario {
         switch(nombre){
             case "text":
             case "date":
+            case "checkbox":
                 comp = document.createElement("input");
                 comp.type = nombre;
                 break;
@@ -139,6 +141,9 @@ export class Formulario {
                 comp = document.createElement("select");
                 comp.appendChild(this.generarOpcion(null, "Escoja una opción"))
                 break;
+            default:
+                console.log("DESCONOCIDO: ", nombre);
+                
         }
         return comp;
     }
@@ -230,8 +235,12 @@ export class Formulario {
             
             /**
              * tanto el input element como el select usan .value para guardar el dato, solo es necesario sacarlo
+             * pero los checkbox no xd
              */
-            o.set(nombre, info.value);
+            //console.log(info, nombre, info.type);
+            
+            if(info instanceof HTMLInputElement && info.type == "checkbox") o.set(nombre, info.checked);
+            else o.set(nombre, info.value);
         })
         return o;
     }
@@ -256,7 +265,7 @@ export class Formulario {
         //itera sobre los datos de cada campo y los checa con el analizador
         info.forEach((dato, nombre)=>{
             //hay que darle la informacion (tipo de dato, longitud, etc...) del campo al analizador
-            let val = Analizador.revisarDato(dato, form.tipoDatos.get(nombre), form.exps.get(nombre), form.longitudes.get(nombre), form.nonulos.get(nombre))
+            let val = Analizador.revisarDato(""+dato, form.tipoDatos.get(nombre), form.exps.get(nombre), form.longitudes.get(nombre), form.nonulos.get(nombre))
             o.set(nombre, val);
         })
         return o;
@@ -411,5 +420,72 @@ export class Formulario {
 
         btn.appendChild(icon);
         return btn;
+    }
+    /**
+     * rellena automaticamente una tabla con la lista de registros, define acciones de actualizacion y eliminacion de los botones de cada uno. 
+     * Necesita funciones de consulta global, consulta por id y eliminacion por id para definir el comportamiento de los botones. 
+     * Al eliminar un registro, se llama al metodo refrescarTabla.
+     * @param {HTMLTableElement} tabla tabla HTML a rellenar
+     * @param {Modelo[]} lista lista de modelos a mostrar
+     * @param {string} idNombre nombre de la ID del modelo
+     * @param {((lista)=>{})=>{}} consultaGlobal funcion de consulta global
+     * @param {(id, (lista)=>{})=>{}} consulta funcion de consulta por ID
+     * @param {(id, (datos)=>{})=>{}} eliminacion funcion de eliminacion por ID
+     */
+    static rellenarTabla(tabla, lista, idNombre, consultaGlobal=(call=(lista)=>{})=>{}, consulta=(id, call=(lista)=>{})=>{}, eliminacion=(id, call=(datos)=>{})=>{}){
+        Formulario.actualizarTablaCalls(tabla, lista, idNombre,
+            /**
+             * 
+             * @param {MouseEvent} ev 
+             * @param {HTMLTableRowElement} row 
+             */
+            (ev, row)=>{
+                Selector.cambiarSeleccion(row.getAttribute("id"), row);
+                //poner los campos en el formulario
+                
+                consulta(Selector.codigo, (lista)=>{
+                    if(lista.length ==0) return;
+    
+                    /**
+                     * @type {Articulo_Inventario | Articulo_Equipo}
+                     */
+                    let mod = lista[0];
+                    console.log("Modelo obtenido: ", mod);
+                    
+                    for(const field in mod){
+                        let elem = document.getElementById("c"+field);
+                        if(elem == null) continue;
+                        elem.setAttribute("value", ""+mod[field]);
+                    }
+                })
+            }, 
+            /**
+             * 
+             * @param {MouseEvent} ev 
+             * @param {HTMLTableRowElement} row 
+             */
+            (ev, row)=>{
+                Selector.cambiarSeleccion(null, null);
+                eliminacion(""+row.getAttribute("id"), (res)=>{
+                    alert("Registro eliminado")
+                    this.refrescarTabla(tabla, idNombre, consultaGlobal, consulta, eliminacion);
+                });
+                
+        });
+    }
+    /**
+     * limpia la tabla, realiza una consulta global y llama a la funcion de rellenado con la lista obtenida. 
+     * Necesita funciones de consulta global, consulta por id y eliminacion por id para el rellenado de la tabla. 
+     * @param {HTMLTableElement} tabla 
+     * @param {string} idNombre 
+     * @param {((lista)=>{})=>{}} consultaGlobal funcion de consulta global
+     * @param {(id, (lista)=>{})=>{}} consulta funcion de consulta por ID
+     * @param {(id, (datos)=>{})=>{}} eliminacion funcion de eliminacion por ID
+     */
+    static refrescarTabla(tabla, idNombre, consultaGlobal=(l=(call)=>{}), consulta=(id, l=(lista)=>{}), eliminacion=(id, l=(datos)=>{})){
+        Formulario.resetearRegistros(tabla);
+        consultaGlobal((lista)=>{
+            this.rellenarTabla(tabla, lista, idNombre, consulta, eliminacion);
+        })
     }
 }
