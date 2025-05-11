@@ -22,7 +22,13 @@ document.getElementById("btnLogout").addEventListener("click", (ev)=>{
         }
     })
 })
-
-document.getElementById("btnAdminUsers").addEventListener("click", (ev)=>{
+if(!admin){
+    try{
+        document.removeChild(document.getElementById("btnAdminUsers"));
+    }catch(e){
+        console.log("usr")
+    }
+    
+}else document.getElementById("btnAdminUsers").addEventListener("click", (ev)=>{
     window.location.href = "panelUsuario.html";
 })
