@@ -56,13 +56,13 @@ function consultarTabla(tabla, selecNombres=[], filtroNombres=[], filtroValores=
                 break;
 
             case Protocol.QUERY_BLOCK:
-                alert("No tiene permitido consultar artículos");
+                alert("No tiene permitido consultar usuarios");
                 console.log("CONSULTA BLOQUEADA")
                 break;
 
             default:
-                console.log("Error de instruccion: ", error);
-                ErrorHandler.handelarError(error);
+                console.log("Error de instruccion: ", err);
+                ErrorHandler.handelarError(err);
         }
     })
 }
@@ -225,6 +225,6 @@ formHTML.addEventListener("submit", (ev)=>{
                 })
             })
         }
-        Formulario.refrescarTabla(tabla, "Nombre", consultarNoAdmin, consultarUsuarioId, eliminarUsuarioId);
+        Formulario.refrescarTabla(tabla, "Nombre", consultarNoAdmin, eliminarUsuarioId, consultarUsuarioId);
     }
 })

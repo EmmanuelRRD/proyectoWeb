@@ -1,3 +1,5 @@
+import { Modelador } from "./Modelador.mjs";
+
 export class Modelo {
     static tiposSQL(){};
     static tipos(){};
@@ -20,11 +22,16 @@ export class Modelo {
     };
     getDatosSQL(){
         let o = [];
+        let t =  Modelador.getNombre(this.constructor.name).tipos();
+        let i = 0;
         for(const fld in this){
             let p = this[fld];
             if(p == null) o.push("NULL");
-            else if(typeof p == "string") o.push("'"+p+"'");
+            else if(t[i] == "string") o.push("'"+p+"'");
             else o.push(p);
+            
+            
+            i++;
         }
         return o;
     };

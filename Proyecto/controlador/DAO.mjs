@@ -239,8 +239,9 @@ export class DAO {
         console.log(idx, noms);
         
         let dato = primaria;
+        
         if(typeof primaria == "string") dato = "'"+primaria+"'";
-        where += noms+"="+primaria;
+        where += noms+"="+dato;
 
         let final = sql+where
         Protocol.sendDelete(final, tabla, pagina, (res)=>{
