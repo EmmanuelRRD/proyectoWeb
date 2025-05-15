@@ -39,7 +39,6 @@ document.getElementById("cLectura").addEventListener("mouseup", (ev)=>{
 
 //CONSULTA
 function consultarTablaLike(tabla, f=(lista)=>{}) {
-    
     let nombre = document.getElementById("cNombre").value;
     let password = document.getElementById("cPass").value
     let lectura = (document.getElementById("cLectura").checked ? 1 : 0);
@@ -50,14 +49,11 @@ function consultarTablaLike(tabla, f=(lista)=>{}) {
     DAO.queryConsultarLike("panelUsuarios", tabla, null, ["Nombre", "Pass"], [nombre+"%", password+"%"], (err, lista)=>{
         switch(err){
             case Protocol.QUERY_SUCCESS:
-
             let o = [];
             for(const mod of lista){
                 if(!mod.Es_Admin) o.push(mod);
                 else console.log("filtrado ", mod);
             }
-            
-            
             f(o);
             break;
             case Protocol.QUERY_BLOCK:
@@ -65,7 +61,6 @@ function consultarTablaLike(tabla, f=(lista)=>{}) {
             default:
                 console.log("Error: ", err);
                 ErrorHandler.handelarError(err);
-                
         }
     })
 }

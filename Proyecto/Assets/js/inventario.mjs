@@ -136,8 +136,6 @@ function rellenarTabla(tabla, lista, consulta=(id, call=(lista)=>{})=>{}, elimin
          */
         (ev, row)=>{
             Selector.cambiarSeleccion(row.getAttribute("id"), row);
-            //poner los campos en el formulario
-            
             consulta(Selector.codigo, (lista)=>{
                 if(lista.length ==0) return;
 
@@ -150,7 +148,6 @@ function rellenarTabla(tabla, lista, consulta=(id, call=(lista)=>{})=>{}, elimin
                 document.getElementById("cId").setAttribute("value", ""+mod.Id);
                 document.getElementById("cNombre").setAttribute("value", ""+mod.Nombre);
                 document.getElementById("cExistencias").setAttribute("value", ""+mod.Existencias);
-                
             })
         }, 
         /**
@@ -164,7 +161,6 @@ function rellenarTabla(tabla, lista, consulta=(id, call=(lista)=>{})=>{}, elimin
                 alert("Registro eliminado")
                 configurarActualizarTabla();
             });
-            
     });
 }
 

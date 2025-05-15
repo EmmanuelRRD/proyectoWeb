@@ -5,6 +5,7 @@ const config = require("../Datos/config");
 const Encadenador = require("../Encadenador/Encadenador");
 const { Usuario } = require("../Proyecto/modelo/usuario.mjs");
 const conexionBD = require("./ConexionBD");
+
 class Inicializador {
     constructor(){}
     static iniciar(callback){

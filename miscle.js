@@ -1,4 +1,14 @@
-//el diablo
+
+/**
+ * MATERIA: INGENIERÍA EN SOFTWARE
+ * TEMA: DESARROLLO
+ * NOMBRE DEL SISTEMA: PhotoCalendar
+ * NOMBRE DEL EQUIPO DE DESARROLLO: PhotoCalendar
+ * NOMBRE DE LOS ALUMNOS:
+ *  Santiago Dominik Bañuelos de la Torre
+ *  Emmanuel Rogelio Robles Dorado
+ * FECHA:  Jueves 15/05/2025
+ */
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
 const DAO = require("./controlador/DAO");
@@ -224,7 +234,6 @@ app.post("/pages/inventario.html", (req, res)=>{
     handleRequest(req, res);
 })
 app.get("/pages/panelUsuarios.html", (req, res)=>{
-    
 })
 app.post("/pages/panelUsuarios.html", (req, res)=>{
     if(usuario == null || !usuario.Es_Admin){
@@ -237,28 +246,7 @@ app.post("/pages/panelUsuarios.html", (req, res)=>{
 
 Inicializador.iniciar2((err) => {
     if(err) return;
-    ConexionBD.conectarRes("admin", "admin", true, () => {
-
-        let userio = new Usuario("Juanin", "12345");
-        userio.Es_Admin = true;
-        
-
-        DAO.agregarUsuario(userio, (res) => {
-            console.log("ENVIEN AYUDA")
-        });
-
-    });
 });
-
-
-let dios = new Usuario("Dios", "9999");
-dios.Lectura=true;
-dios.Escritura=true;
-    
-DAO.agregarUsuario(dios, (err)=>{
-    if(err) console.log("ERRORE")
-});
-
 
 
 

@@ -327,10 +327,6 @@ export class Formulario {
 
         r.appendChild(td1);
         r.appendChild(td2);
-        //agregar quiza
-
-        
-        //agregar botones
         return r;   
     }
     static crearRegistroCalls(modelo, id, editar=(ev, row)=>{}, eliminar=(ev, row)=>{}){
@@ -359,17 +355,11 @@ export class Formulario {
             editar(ev, r);
         });
         btnEliminar.addEventListener("click", (ev)=>{
-            
-            
             eliminar(ev, r);
         });
 
         r.appendChild(td1);
         r.appendChild(td2);
-        //agregar quiza
-
-        
-        //agregar botones
         return r;   
     }
     /**
