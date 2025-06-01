@@ -171,10 +171,17 @@ function configurarActualizarTabla(){
     let consultaId = consultarArticuloId;
     let eliminar = eliminarArticuloId;
 
+    let user = Protocol.getUserDatos();
+    let admin = Protocol.userAdmin(user);
     if(TIPO_INVENTARIO == "equipo"){
         consulta = consultarEquipos;
         consultaId = consultarEquipoId;
         eliminar = eliminarEquipoId;
+    }
+    if(!admin){
+        eliminar = ()=>{alert("No tiene permitido eliminar inventario")};
+        agregarEquipo = () => {alert("No tiene permitido editar equipo fotográfico")}
+        modificarEquipoId = () => {alert("No tiene permitido editar equipo fotográfico")}
     }
 
     Formulario.resetearRegistros(tabla);
@@ -187,10 +194,17 @@ function configurarActualizarTablaEspecifico(lista){
 
     let consultaId = consultarArticuloId;
     let eliminar = eliminarArticuloId;
-
+    let user = Protocol.getUserDatos();
+    let admin = Protocol.userAdmin(user);
+    
+    if(Protocol)
     if(TIPO_INVENTARIO == "equipo"){
         consultaId = consultarEquipoId;
         eliminar = eliminarEquipoId;
+    }
+
+    if(!admin){
+        eliminar = ()=>{alert("No tiene permitido eliminar inventario")};
     }
 
     Formulario.resetearRegistros(tabla);
@@ -246,6 +260,10 @@ formHTML.addEventListener("submit", (ev)=>{
         let data = Formulario.extraer(form);
         let modelo = Modelador.instanciar(tipo.name, data);
         
+        let user = Protocol.getUserDatos();
+        let admin = Protocol.userAdmin(user);
+        
+
         console.log(modelo);
         if(Selector.codigo == null){
             agrega(modelo, (datos)=>{

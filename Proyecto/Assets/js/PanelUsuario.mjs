@@ -6,7 +6,7 @@ import { Formulario } from "./Formulario.mjs";
 import { Protocol } from "./protocol.mjs";
 import { Selector } from "./Seleccionador.mjs";
 import { Analizador } from "./Analizador.mjs";
-
+let user = Protocol.getUserDatos();
 /**
  * @type {HTMLFormElement}
  */
@@ -200,11 +200,20 @@ function modificarTablaId(tabla, alertTipo, modelo, id, call=(datos)=>{}){
 }
 
 ///LOGICA
-
+let admin = Protocol.userAdmin(user);
+if(!admin){
+    eliminarUsuarioId = ()=>{return};
+}
 Formulario.refrescarTabla(tabla, "Nombre", consultarNoAdmin, consultarUsuarioId, eliminarUsuarioId);
 
 formHTML.addEventListener("submit", (ev)=>{
     
+    let admin = Protocol.userAdmin(user);
+    if(!admin){
+        alert("No tiene permitido modificar inventario");
+        return;
+    }
+
     console.log(ev.target);
     
     ev.preventDefault();

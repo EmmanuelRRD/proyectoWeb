@@ -27,7 +27,7 @@ export class Modelo {
         for(const fld in this){
             let p = this[fld];
             if(p == null) o.push("NULL");
-            else if(t[i] == "string") o.push("'"+p+"'");
+            else if(t[i] == "string" || t[i] == "date") o.push("'"+p+"'");
             else o.push(p);
             
             

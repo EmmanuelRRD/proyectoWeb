@@ -98,7 +98,7 @@ function renderCalendar(year, month) {
     const dayBtn = document.createElement("button");
     dayBtn.textContent = i;
     dayBtn.dataset.day = i;
-
+    dayBtn.id = "data-day-"+i;
     dayBtn.addEventListener("click", function () {
       const dia = this.dataset.day;
       const mes = parseInt(selectorMes.value);
@@ -110,6 +110,7 @@ function renderCalendar(year, month) {
 
       let frame = document.createElement("iframe");
       frame.setAttribute("class", "popmenu");
+      frame.setAttribute("id", "frameform");
       frame.src = "formularioEvento.html";
       dayBtn.dataset.form = frame;
       dayBtn.dataset.formClick = false;
@@ -336,12 +337,10 @@ function getProximidad(fecha){
 function pintarDiasEventos(lista){
   let diaMenor = 33;
   lista.forEach(ev=>{
-    let dia = dias.get(obtenerInicioEvento(ev)+1);
+    let dia = dias.get(obtenerInicioEvento(ev));
     let diff = getProximidad(ev.Fecha_Inicio+"T00:00");
-    
+
     if(diff.getTime() < 0) {
-      console.log("griso");
-      
       pintarDia(dia, "gray");
       return;
     }
@@ -473,9 +472,15 @@ function pintarDia(dias, color){
  * obtiene el dia de inicio del evento dado
  * @param {Evento} ev
  */
-function obtenerInicioEvento(ev){
+function obtenerInicioEvento(ev, offset=0){
+  let diaString = ev.Fecha_Inicio.split("-")[2];
+  let dia = parseInt(diaString)+offset;
+  let tope = dias.size
+  if(dia > tope){
+    dia -= tope;
+  }
   
-   return new Date(ev.Fecha_Inicio).getDate();
+  return dia;
 }
 /**
 * obtiene el dia de fin del evento dado

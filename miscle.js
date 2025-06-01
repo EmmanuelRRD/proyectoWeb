@@ -233,7 +233,8 @@ app.post("/pages/calendario.html", (req, res)=>{
 app.post("/pages/inventario.html", (req, res)=>{
     handleRequest(req, res);
 })
-app.get("/pages/panelUsuarios.html", (req, res)=>{
+app.get("/pages/panelUsuario.html", (req, res)=>{
+    res.redirect("/pages/panelUsuarios.html")
 })
 app.post("/pages/panelUsuarios.html", (req, res)=>{
     if(usuario == null || !usuario.Es_Admin){

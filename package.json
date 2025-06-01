@@ -1,17 +1,9 @@
 {
   "dependencies": {
-  
-    
-  "async": "^3.2.6",
-  
-    
-  "body-parser": "^2.2.0",
-  
-    
-  "express": "^5.1.0",
-  
-    
-  "mysql": "^2.18.1"
-  
+    "async": "^3.2.6",
+    "body-parser": "^2.2.0",
+    "express": "^5.1.0",
+    "mysql": "^2.18.1",
+    "selenium-webdriver": "^4.33.0"
   }
 }
